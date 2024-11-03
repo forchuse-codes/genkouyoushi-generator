@@ -89,6 +89,17 @@ header > h1 {
   text-align: center;
 }
 
+.byline {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+.byline > a {
+  height: 1.5rem;
+  width: 1.25rem;
+}
+
 main {
   display: flex;
   flex-flow: row wrap;
@@ -131,7 +142,25 @@ main {
   gap: 1rem;
 }
 .introduction ul strong {
-  width: 100%;
+  flex: 0 1 0;
+  white-space: nowrap;
+}
+.introduction ul li {
+  align-items: start;
+  -moz-column-gap: 1.5rem;
+       column-gap: 1.5rem;
+}
+.introduction ul p {
+  flex: 1 1 0;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+ul li {
+  display: flex;
 }
 
 .alert {
@@ -140,10 +169,8 @@ main {
 }
 
 [class^=config__] {
-  display: grid;
   width: -moz-fit-content;
   width: fit-content;
-  flex-grow: 1;
 }
 
 .config-section {
@@ -151,8 +178,7 @@ main {
   padding: 1rem;
   padding-top: 0;
   margin-block: 1rem;
-  -moz-column-gap: 2rem;
-       column-gap: 2rem;
+  flex: 1 1 0;
 }
 .config-section_sub {
   -moz-column-gap: 1rem;
@@ -161,17 +187,25 @@ main {
 
 .section-title,
 .fieldset > .section-header {
-  grid-column: 1/-1;
   margin-top: -0.75rem;
-  background-color: var(--bg-color);
+  margin-bottom: 0.5rem;
+  grid-column: 1/-1;
+}
+
+.section-title > div,
+.fieldset > .section-header > h4 {
   width: -moz-fit-content;
   width: fit-content;
   padding-inline: 1rem;
-  margin-bottom: 0.5rem;
+  background-color: var(--bg-color);
   display: flex;
   -moz-column-gap: 1rem;
        column-gap: 1rem;
   align-items: center;
+}
+
+.section-title h3 {
+  white-space: nowrap;
 }
 
 .section-help {
@@ -196,7 +230,84 @@ main {
   outline: 1px solid var(--text-color);
 }
 
-[class*=config-section],
+.help-modal {
+  border: 0;
+  color: var(--text-color);
+  margin: 0;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  width: min(70ch, 100%);
+}
+.help-modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.help-modal__header {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+}
+.help-modal__content {
+  background-color: var(--bg-color);
+  border: 1px solid var(--text-color);
+  width: 100%;
+  max-width: min(70ch, 100vw);
+  max-height: 100vh;
+  overflow: auto;
+}
+.help-modal__content h5 {
+  font-size: 1rem;
+  width: 100%;
+  border-bottom: 1px solid var(--text-color);
+}
+.help-modal__body {
+  display: grid;
+}
+.help-modal__body strong + p {
+  margin-bottom: 0.5rem;
+}
+.help-modal__body.no-details {
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+}
+.help-modal details {
+  border-top: 1px solid var(--text-color);
+}
+.help-modal details > *:not(summary) {
+  padding: 0.5rem;
+}
+.help-modal details li {
+  display: block;
+}
+.help-modal summary {
+  padding: 0.5rem;
+  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .help-modal summary {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+}
+.close-help {
+  border: none;
+  background: transparent;
+}
+.close-help:focus, .close-help:hover {
+  cursor: pointer;
+  outline: 1px solid var(--text-color);
+}
+
+.config-section_wrapper {
+  display: flex;
+  flex-flow: row wrap;
+  gap: 2rem;
+}
+
+.config-section_sub,
 .fieldset {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -204,19 +315,25 @@ main {
   row-gap: 0.5rem;
   outline-color: blue !important;
 }
-[class*=config-section] label,
+.config-section_sub label,
 .fieldset label {
   grid-column: 1;
   align-self: center;
+  white-space: nowrap;
 }
-[class*=config-section] input,
+.config-section_sub input,
 .fieldset input {
   grid-column: 2;
 }
+.config-section_sub li,
+.fieldset li {
+  -moz-column-gap: 0.5rem;
+       column-gap: 0.5rem;
+  align-items: center;
+}
 
 .fieldset {
-  grid-column: 1/-1;
-  border: 1px solid black;
+  border: 1px solid var(--text-color);
   padding: 1rem;
   padding-top: 0;
 }
@@ -241,19 +358,6 @@ fieldset > div {
 
 .config__grid__style {
   grid-column: span 2;
-}
-
-ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-}
-ul li {
-  display: flex;
-  -moz-column-gap: 0.5rem;
-       column-gap: 0.5rem;
-  align-items: center;
-  flex-wrap: wrap;
 }
 
 .grid-style {
@@ -400,4 +504,13 @@ button {
 .preview-wrapper {
   max-width: calc(100vw - 4 * var(--window-padding-inline));
   overflow-x: auto;
+}
+
+@media screen and (min-width: 1300px) {
+  .configuration {
+    flex-direction: column;
+  }
+  .config-section {
+    width: 100%;
+  }
 }
