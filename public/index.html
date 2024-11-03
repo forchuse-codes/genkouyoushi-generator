@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../src/css/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    <script type="module" src="../src/js/main.js" defer></script>
+    <title>Genkouyoushi Generator</title>
+</head>
+<body>
+    <header>
+        <picture>
+          <source srcset="img/logo-white.png" media="(prefers-color-scheme: dark)">
+          <img src="img/logo-black.png" alt="" aria-hidden=true>
+        </picture>
+        <h1>Genkouyoushi Generator</h1>
+        <p>By Forchuse</p>
+    </header>
+    <main>
+    
+        <section class="introduction">
+            <h2>How To Use</h2>
+            <div>
+                <p>
+                    The grid will automatically fill with as many cells as possible
+                    within the page size and margins you specify in Page Layout.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Page Layout</strong> 
+                        <p>adjust to match the desired size/margins of the final printed page</p>
+                    </li>
+                    <li>
+                        <strong>Grid Design</strong> 
+                        <p>cell size, grid gaps/style/colors, grid line style</p>
+                    </li>
+                    <li>
+                        <strong>PDF Options</strong> 
+                        <p>quality and filename of the saved PDF</p>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <p>
+                    Click the <strong>Refresh Preview</strong> button to see what the grid will look like provided the changes you made, 
+                    and <strong>Download as PDF</strong> when you're satisfied with the results! 
+                    Downloading will automatically refresh the preview to ensure it downloads with the most up to date configuration.
+                </p>
+        <!--         <p class="alert"><strong>Note:</strong> there's some weirdness where not all grid lines show up on all cell sizes (such as 15mm), so make sure to refresh the preview and adjust the cell size until they all show up.</p> -->
+            </div>
+            
+        </section>
+
+        <div class="main">  
+            <section class="configuration">
+                <div class="section-header_wrapper">
+                    <h2>Configuration</h2>
+                </div>
+        
+                <div class="config__page-layout config-section">
+                    <div class="section-title">
+                        <div>
+                            <h3>Page Layout</h3>
+                            <button class="section-help" aria-controls="help__page-layout" aria-expanded="false" title="Page Layout Help">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="config-section_wrapper">
+                        <fieldset class="config__page-layout__dimensions config-section_sub">
+                            <legend class="section-header">Dimensions</legend>
+                            <label for="page-width">
+                            Width:
+                            </label>
+                            <input 
+                                type="number" 
+                                id="page-width" 
+                                min=0
+                                value=8.5
+                                step=0.05>
+                            <label for="page-height">
+                            Height:
+                            </label>
+                            <input 
+                                type="number" 
+                                id="page-height" 
+                                min=0
+                                value=11
+                                step=0.05>
+                        </fieldset>
+                
+                        <fieldset class="config__page-layout__margins config-section_sub">
+                            <legend class="section-header">Margins</legend>
+                            <label for="margin-x">Left/Right:</label>
+                            <input 
+                                type="number"
+                                id="margin-x"
+                                step=0.05
+                                min=0
+                                value=0.25>
+                            <label for="margin-y">Top/Bottom:</label>
+                            <input 
+                                type="number"
+                                id="margin-y"
+                                step=0.05
+                                min=0
+                                value=0.5>
+                        </fieldset>
+                    </div>
+
+                    <dialog id="help__page-layout" class="help-modal">
+                        <div class="help-modal__content">
+                            <div class="help-modal__header">
+                                <h4>Page Layout Help</h4>
+                                <button class="close-help" title="Close help window">X</button>
+                            </div>
+                            <div class="help-modal__body no-details">
+                                <div>
+                                    <strong>Dimensions:</strong>
+                                    <p>The width and height of the printed page in inches</p>
+                                </div>
+                                <div>
+                                    <strong>Margins:</strong>
+                                    <p>Page margins (in inches) for sides and top/bottom</p>
+                                </div>
+                            </div>
+                        </div>
+                    </dialog>
+                </div>
+        
+                <div class="config__grid config-section">
+                    <div class="section-title">
+                        <div>
+                            <h3>Grid Design</h3>
+                            <button class="section-help" aria-controls="help__grid-design" aria-expanded="false" title="Grid Design Help">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="config-section_wrapper">                    
+                        <fieldset class="config__row config-section_sub">
+                            <legend class="section-header">Sizes</legend>
+                            <label for="cell-size">Cell Size:</label>
+                            <div>
+                                <input type="number" id="cell-size" min=1 value=14 step=1>
+                                <span class="suffix">mm</span>
+                            </div>
+                            <label for="col-gap">Column Gap:</label>
+                            <div>
+                                <input type="number" id="col-gap" min=0 value=20>
+                                <span class="suffix">px</span>
+                            </div>
+                            <label for="row-gap">Row Gap:</label>
+                            <div>
+                                <input type="number" id="row-gap" min=0 value=0>
+                                <span class="suffix">px</span>
+                            </div>
+                        </fieldset>
+                
+                        <fieldset class="config__row__colors config-section_sub">
+                            <legend class="section-header">Colors</legend>
+                            <label for="color-main">Border:</label>
+                            <input type="color" id="color-main" value="#333333">
+                            <label for="color-sub">Subgrid:</label>
+                            <input type="color" id="color-sub" value="#dcdcdc">
+                            <label for="color-subber">Subbergrid:</label>
+                            <input type="color" id="color-subber" value="#f5f5f5">
+                        </fieldset>
+
+                        <div class="fieldset">
+                            <div class="section-header">
+                                <h4>Line Types</h4>
+                            </div>
+                            <div class="config-section_wrapper">
+                                <fieldset id="line-type_sub" class="config__row__line-type config-section_sub">
+                                    <legend class="section-header">Subgrid</legend>
+                                    <ul>
+                                        <li>
+                                            <input type="radio" id="sub_line-solid" name="sub_line-type" value="solid">
+                                            <label for="sub_line-solid">Solid</label>
+                                        </li>
+                                        <li>
+                                            <input type="radio" id="sub_line-dashed" name="sub_line-type" value="dashed" checked>
+                                            <label for="sub_line-dashed">Dashed</label> 
+                                        </li>
+                                        <li>
+                                            <input type="radio" id="sub_line-dotted" name="sub_line-type" value="dotted">
+                                            <label for="sub_line-dotted">Dotted</label>
+                                        </li>
+                                    </ul>
+                                </fieldset>
+                                <fieldset id="line-type_subber" class="config__row__line-type config-section_sub">
+                                    <legend class="section-header">Subbergrid</legend>
+                                    <ul>
+                                        <li>
+                                            <input type="radio" id="subber_line-solid" name="subber_line-type" value="solid">
+                                            <label for="subber_line-solid">Solid</label>
+                                        </li>
+                                        <li>
+                                            <input type="radio" id="subber_line-dashed" name="subber_line-type" value="dashed" checked>
+                                            <label for="subber_line-dashed">Dashed</label> 
+                                        </li>
+                                        <li>
+                                            <input type="radio" id="subber_line-dotted" name="subber_line-type" value="dotted">
+                                            <label for="subber_line-dotted">Dotted</label>
+                                        </li>
+                                    </ul>
+                                </fieldset>
+                            </div>
+                        </div>
+                        
+                
+                        <fieldset class="config__grid__style config-section_sub">
+                            <legend class="section-header">Style</legend>
+                            <ul class="grid-style">
+                                <li>
+                                    <input id="none" type="radio" name="grid-style" value="blank">
+                                    <div class="grid none">
+                                        <label for="none" title="No Squares">
+                                        </label>
+                                    </div>
+                                </li>
+                                <li>
+                                    <input id="quad"type="radio" name="grid-style" value="quad" checked>
+                                    <div class="grid quad">
+                                        <label for="quad" title="Four Squares">
+                                        <div class="quad-lines"></div>
+                                        </label>
+                                    </div>
+                                </li>
+                                <li>
+                                    <input id="hexa" type="radio" name="grid-style" value="hexa">
+                                    <div class="grid hexa">
+                                        <label for="hexa" title="Eight Squares">
+                                        <div class="quad-lines"></div>
+                                        <div class="hexa-lines"></div>
+                                        </label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </fieldset>
+                    </div>
+
+                    <dialog id="help__grid-design" class="help-modal">
+                        <div class="help-modal__content">
+                            <div class="help-modal__header">
+                                <h4>Grid Design Help</h4>
+                                <button class="close-help" title="Close help window">X</button>
+                            </div>
+                            
+                            <div class="help-modal__body">
+                                <details name="grid-design" open>
+                                    <summary>General</summary>
+                                    <ul>
+                                        <li>
+                                            <strong>Cell:</strong>
+                                            <p>Individual square cell for one character</p>
+                                        </li>
+                                        <li>
+                                            <strong>Subgrid:</strong>
+                                            <p>Initial subdivision of the main cell into four squares</p>
+                                        </li>
+                                        <li>
+                                            <strong>Subbergrid:</strong>
+                                            <p>Second subdivision of each of the subgrid's squares into four squares</p>
+                                        </li>
+                                    </ul>
+                                </details>
+                                <details name="grid-design">
+                                    <summary>Sizes</summary>
+                                    <ul>
+                                        <li>
+                                            <strong>Cell Size:</strong>
+                                            <p>The width/height of each square within the grid in mm (this is approximate and is rounded down when converted to pixels)</p>
+                                        </li>
+                                        <li>
+                                            <strong>Column Gap:</strong>
+                                            <p>Page margins (in inches) for sides and top/bottom</p>
+                                        </li>
+                                    </ul>
+                                </details>
+                                <details name="grid-design">
+                                    <summary>Colors</summary>
+                                    <ul>
+                                        <li>
+                                            <strong>Border:</strong>
+                                            <p>Color of the square cell's outside border</p>
+                                        </li>
+                                        <li>
+                                            <strong>Subgrid:</strong>
+                                            <p>Color of the two primary horizontal/vertical grid lines that bisect the cell's X and Y axis</p>
+                                        </li>
+                                        <li>
+                                            <strong>Subbergrid:</strong>
+                                            <p>Color of the four additional lines (two horizontal, two vertical) which bisect each of the subgrid's squares</p>
+                                        </li>
+                                    </ul>
+                                </details>
+                                <details name="grid-design">
+                                    <summary>Line Types</summary>
+                                    <p>Style of the line (solid, dashed, or dotted) for the Subgrid and Subbergrid lines</p>
+                                </details>
+                                <details name="grid-design">
+                                    <summary>Style</summary>
+                                    <div>
+                                        <p>Number of guidelines within each square: none, two (four subsquares), or six (sixteen subsquares)</p>
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+                    </dialog>
+                </div>
+        
+                <div class="config__print config-section">
+                    <div class="section-title">
+                        <div>
+                            <h3>PDF Options</h3>
+                            <button class="section-help" aria-controls="help__pdf-options" aria-expanded="false" title="PDF Options Help">
+                            </button>
+                        </div>
+                    </div>
+                    <div class="config-section_wrapper">
+                        <div class="config__row config-section_sub">
+                            <h4 class="section-header">Quality</h4>
+                            <label for="scale">Scale:</label>
+                            <input type="number" id="scale" min="1" max="10" value="6">
+                            <!-- <div>
+                                <span class="prefix">1</span>
+                                <input type="range" id="scale" min="1" max="10" step="1" value="6">
+                                <span class="suffix">10</span>
+                            </div> -->
+                            <label for="dpi">DPI:</label>
+                            <input type="number" id="dpi" min="72" value="300">
+                        </div>
+                
+                        <div class="config-section_sub">
+                            <fieldset>
+                                <legend class="section-header">Filename</legend>
+                                <ul>
+                                <li>
+                                    <input type="checkbox" name="filename" id="size" data-target="#cell-size" checked>
+                                    <label for="size">Cell Size</label>
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="gap" name="filename" data-target="#col-gap">
+                                    <label for="gap">Gap</label>
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="style" name="filename" data-target="grid-style" checked>
+                                    <label for="style">Style</label>
+                                </li>
+                                </ul>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+
+                <dialog id="help__pdf-options" class="help-modal">
+                    <div class="help-modal__content">
+                        <div class="help-modal__header">
+                            <h4>PDF Options Help</h4>
+                            <button class="close-help" title="Close help window">X</button>
+                        </div>
+                        
+                        <div class="help-modal__body">
+                            <div>
+                                <h5>Sizes</h5>
+                                <strong>Cell Size:</strong>
+                                <p>The width/height of each square within the grid in mm (this is approximate and is rounded down when converted to pixels)</p>
+                                <strong>Column Gap:</strong>
+                                <p>Page margins (in inches) for sides and top/bottom</p>
+                            </div>
+                            <div>
+                                <h5>Colors</h5>
+                            </div>
+                            <div>
+                                <h5>Line Types</h5>
+                            </div>
+                            <div>
+                                <h5>Style</h5>
+                            </div>
+                        </div>
+                    </div>
+                </dialog>
+            </section>
+        
+            <section class="buttons">  
+                <button id="refreshPreview" class="onclick">Refresh Preview</button>
+                <button id="generatePDF" class="onclick">Download as PDF</button>
+                <span id="pdf-name"></span>
+            </section>
+        </div>
+        
+        <div class="aside">
+            <section class="preview">
+                <h2>Preview</h2>
+                <div class="preview-wrapper">
+                <div id="page" class="page a4">
+                    <div id="preview" class="grid genkouyoushi-grid"></div>
+                </div>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>
