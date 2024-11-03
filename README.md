@@ -1,0 +1,1 @@
+# genkouyoushi-generator
