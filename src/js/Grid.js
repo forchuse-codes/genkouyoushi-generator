@@ -10,7 +10,7 @@ export class Grid {
         this.buttons    = this.#initButtons();
         // this.defaults = JSON.parse(JSON.stringify(this))
 
-        this.preview = document.getElementById('page');
+        this.page = document.getElementById('page');
         this.grid    = document.getElementById('preview');
         this.loaded  = true;
 
@@ -197,9 +197,9 @@ export class Grid {
     }
 
     updatePageLayout() {
-        this.preview.style.width = this.pageLayout.dimensions.pxX + "px"
-        this.preview.style.height = this.pageLayout.dimensions.pxY + "px"
-        this.preview.style.padding = `${this.pageLayout.margins.pxY} ${this.pageLayout.margins.pxX}`
+        this.page.style.width = this.pageLayout.dimensions.pxX + "px"
+        this.page.style.height = this.pageLayout.dimensions.pxY + "px"
+        this.page.style.padding = `${this.pageLayout.margins.pxY} ${this.pageLayout.margins.pxX}`
     }
 
     updateGridSize() {
@@ -306,7 +306,7 @@ export class Grid {
         const page       = pdfDoc.addPage([pageWidth, pageHeight]);
 
         // Capture the content using html2canvas
-        const canvas   = await html2canvas(this.preview, { scale: this.pdfOptions.quality.scale });
+        const canvas   = await html2canvas(this.grid, { scale: this.pdfOptions.quality.scale });
         const imgData  = canvas.toDataURL('image/png');
         const pngImage = await pdfDoc.embedPng(imgData);
 
