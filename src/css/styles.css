@@ -8,6 +8,7 @@
 :root {
   --text-color: black;
   --bg-color: white;
+  --btn-color: #aaa;
   --window-padding-inline: 1rem;
 }
 
@@ -169,6 +170,42 @@ ul li {
 .alert {
   padding: 1rem;
   border: 1px solid var(--text-color);
+}
+
+#units {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  flex-flow: row nowrap;
+}
+#units > li:first-of-type label {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+#units > li:last-of-type label {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+#units input:checked + label {
+  background-color: whitesmoke;
+}
+#units label {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  -webkit-appearance: button;
+     -moz-appearance: button;
+          appearance: button;
+  background-color: var(--btn-color);
+  color: black !important;
+  border: 1px solid black;
+}
+
+#presets {
+  padding: 0.25rem 0.5rem;
+}
+
+.configuration.units-in .mm, .configuration.units-mm .in {
+  display: none;
 }
 
 [class^=config__] {
@@ -486,11 +523,18 @@ button {
 .genkouyoushi-grid.no-gap > .genkouyoushi-cell:not(.last-column) {
   border-right: none;
 }
+.genkouyoushi-grid[data-style=blank] .quad-lines, .genkouyoushi-grid[data-style=blank] .hexa-lines {
+  display: none;
+}
+.genkouyoushi-grid[data-style=quad] .hexa-lines {
+  display: none;
+}
 .genkouyoushi-grid .genkouyoushi-cell {
   border: 1px solid var(--main_c);
   border-bottom: none;
   box-sizing: border-box;
   overflow: hidden;
+  position: relative;
 }
 .genkouyoushi-grid .genkouyoushi-cell.last-in-column {
   border-bottom: 1px solid var(--main_c);

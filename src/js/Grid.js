@@ -1,14 +1,15 @@
+import { Units } from "./Units.js";
+
 export class Grid {
     constructor(isClone = false) { 
         this.clone = isClone;
-        this.inchToPx = 96;
-        this.mmToPx = this.inchToPx / 25.4;
+        this.units = new Units();
+        this.units.inputs = document.querySelectorAll('.unit-value');
 
         this.pageLayout = this.#initPageLayout();
         this.gridDesign = this.#initGridDesign();   
         this.pdfOptions = this.#initPdfOptions();
         this.buttons    = this.#initButtons();
-        // this.defaults = JSON.parse(JSON.stringify(this))
 
         this.page = document.getElementById('page');
         this.grid    = document.getElementById('preview');
@@ -37,30 +38,37 @@ export class Grid {
     }
     
     #initPageLayout() {
-        const inchToPx = this.inchToPx;
-        const pageLayout = this.createDynamicGetters({
+        const self = this;
+        
+        const pageLayout = {
             dimensions: {
-                inchesX: 'page-width',
-                inchesY: 'page-height'
+                elements: {
+                    x: document.getElementById('page-width'),
+                    y: document.getElementById('page-height'),
+                },
+                get orientation() { return document.querySelector('input[name="orientation"]:checked').id; }
             },
             margins: {
-                inchesX: 'margin-x',
-                inchesY: 'margin-y'
+                elements: {
+                    x: document.getElementById('margin-x'),
+                    y: document.getElementById('margin-y')
+                }
             }
-        });
+        };
 
         ['dimensions', 'margins'].forEach((key) => {
             Object.defineProperties(pageLayout[key], {
-                pxX: {
-                    get() {
-                        return Math.floor(parseFloat(pageLayout[key].inchesX) * inchToPx);
-                    }
-                },
-                pxY: {
-                    get() {
-                        return Math.floor(parseFloat(pageLayout[key].inchesY) * inchToPx);
-                    }
-                }
+                x: { get() { return parseFloat(pageLayout[key].elements.x.value) } },
+                y: { get() { return parseFloat(pageLayout[key].elements.y.value) } },
+                pxX: { get() { return self.units.toPx(pageLayout[key].x); } },
+                pxY: { get() { return self.units.toPx(pageLayout[key].y); } }
+            });
+        });
+
+        const orientations = document.querySelectorAll('input[name="orientation"]');
+        orientations.forEach(orientation => {
+            orientation.addEventListener('change', () => {
+                this.switchOrientation(orientation.id);
             });
         });
 
@@ -68,57 +76,73 @@ export class Grid {
     }
     
     #initGridDesign() {
-        const mmToPx = this.mmToPx;
+        const self = this;
 
-        const designOptions = this.createDynamicGetters({
+        const designOptions = {
             sizes: {
-                cellSizeMm: 'cell-size',
-                colGap: 'col-gap',
-                rowGap: 'row-gap'
+                elements: {
+                    cell: document.getElementById('cell-size'),
+                    colGap: document.getElementById('col-gap'),
+                    rowGap: document.getElementById('row-gap')
+                }
             },
             colors: {
-                main: 'color-main',
-                sub: 'color-sub',
-                subber: 'color-subber'
-            }
-        });
-
-        designOptions.lineTypes = {
-            fieldset: {
-                sub: document.getElementById('line-type_sub'),
-                subber: document.getElementById('line-type_subber')
-            }            
-        };
-
-        Object.defineProperty(designOptions, 'style', {
-            get() {
-                return document.querySelector('input[name="grid-style"]:checked').value || 'quad';
-            }
-        });
-        
-        Object.defineProperty(designOptions.sizes, 'cellSizePx', {
-            get() {
-                return Math.floor(parseInt(designOptions.sizes.cellSizeMm) * mmToPx);
-            }
-        });
-
-        Object.defineProperties(designOptions.lineTypes, {
-            sub: {
-                get() {
-                    return document.querySelector('input[name="sub_line-type"]:checked').value || 'dashed';
+                elements: {
+                    main: document.getElementById('color-main'),
+                    sub: document.getElementById('color-sub'),
+                    subber: document.getElementById('color-subber'),
                 }
             },
-            subber: {
-                get() {
-                    return document.querySelector('input[name="subber_line-type"]:checked').value || 'dashed';
-                }
-            }
+            lineTypes: {
+                fieldset: {
+                    sub: document.getElementById('line-type_sub'),
+                    subber: document.getElementById('line-type_subber')
+                },
+                get sub() { return document.querySelector('input[name="sub_line-type"]:checked').value || 'dashed'; },
+                get subber() { return document.querySelector('input[name="subber_line-type"]:checked').value || 'dashed'; }
+            },
+            get style() { return document.querySelector('input[name="grid-style"]:checked').value || 'quad'; }
+        };
+
+        Object.defineProperties(designOptions.sizes, {
+            cell: { get() { return parseFloat(designOptions.sizes.elements.cell.value); } },
+            colGap: { get() { return parseInt(designOptions.sizes.elements.colGap.value); } },
+            rowGap: { get() { return parseInt(designOptions.sizes.elements.rowGap.value); } },
+            cellPx: { get() { return self.units.toPx(designOptions.sizes.cell); } }
+        });
+
+        Object.defineProperties(designOptions.colors, {
+            main: { get() { return designOptions.colors.elements.main.value; } },
+            sub:  { get() { return designOptions.colors.elements.sub.value; } },
+            subber: { get() { return designOptions.colors.elements.subber.value; } },
+        });
+
+        const styles = document.querySelectorAll('input[name="grid-style"]');
+        styles.forEach(style => {
+            style.addEventListener('change', (e) => {
+                this.grid.setAttribute('data-style', e.target.value);
+            });
+        });
+
+        const colors = document.querySelectorAll('input[type="color"]');
+        colors.forEach(color => {
+            color.addEventListener('change', () => {
+                this.updateGridColors();
+            });
+        });
+
+        const lineTypes = document.querySelectorAll('.config__row__line-type input[type="radio"]');
+        lineTypes.forEach(type => {
+            type.addEventListener('change', () => {
+                this.updateGridLineStyle();
+            });
         });
 
         return designOptions;
     }
     
     #initPdfOptions() {
+        const self = this;
         const gridOptions = this.gridDesign;
         const pdfOptions = this.createDynamicGetters({
             quality: {
@@ -133,9 +157,7 @@ export class Grid {
 
         ['size', 'gap', 'style'].forEach((option) => {
             Object.defineProperty(pdfOptions.filename, option, {
-                get() {
-                    return document.getElementById(option)?.checked || false
-                }
+                get() { return document.getElementById(option)?.checked || false; }
             });
         });
 
@@ -143,7 +165,8 @@ export class Grid {
             get() {
                 let filename = "genkouyoushi";
                 if (pdfOptions.filename.size) {
-                    filename += `_${gridOptions.sizes.cellSizeMm}mm`;
+                    const cellSize = `${gridOptions.sizes.cell}`;
+                    filename += `_${cellSize.replace(".", "")}${self.units.currentAbbrv}`;
                 }
                 
                 if (pdfOptions.filename.gap) {
@@ -177,13 +200,17 @@ export class Grid {
     }
 
     columns() {
-        const gridWidthPx = Math.floor(this.pageLayout.dimensions.pxX - 2 * this.pageLayout.margins.pxX)
-        return Math.floor(gridWidthPx / (this.gridDesign.sizes.cellSizePx + parseInt(this.gridDesign.sizes.colGap)))
+        const borderWidth = 1;
+        const gridWidthPx = Math.floor(this.pageLayout.dimensions.pxX - 2 * this.pageLayout.margins.pxX);
+        // console.log("x", this.pageLayout.dimensions.x, this.pageLayout.dimensions.pxX);
+        // console.log("y", this.pageLayout.dimensions.y, this.pageLayout.dimensions.pxY);
+        return Math.floor(gridWidthPx / (this.gridDesign.sizes.cellPx + borderWidth + parseInt(this.gridDesign.sizes.colGap)))
     }
 
     rows() {
+        const borderWidth = 1;
         const gridHeightPx = Math.floor(this.pageLayout.dimensions.pxY - 2 * this.pageLayout.margins.pxY)
-        return Math.floor(gridHeightPx / (this.gridDesign.sizes.cellSizePx + parseInt(this.gridDesign.sizes.rowGap)))
+        return Math.floor(gridHeightPx / (this.gridDesign.sizes.cellPx + borderWidth + parseInt(this.gridDesign.sizes.rowGap)))
     }
 
     async refreshPreview() {
@@ -194,21 +221,35 @@ export class Grid {
         this.updateGridLineStyle()
         this.createGridCells()
         this.updateFilename()
+        // console.log(this.rows(), this.columns())
     }
 
     updatePageLayout() {
+        this.updatingLayout = true;
         this.page.style.width = this.pageLayout.dimensions.pxX + "px"
         this.page.style.height = this.pageLayout.dimensions.pxY + "px"
         this.page.style.padding = `${this.pageLayout.margins.pxY} ${this.pageLayout.margins.pxX}`
+
+        if (this.pageLayout.dimensions.orientation === 'portrait' && !this.isPortrait()) {
+            const landscape = document.getElementById('landscape');
+            landscape.click();
+        }
+        else if (this.pageLayout.dimensions.orientation === 'landscape' && this.isPortrait()) {
+            const portrait = document.getElementById('portrait');
+            portrait.click();
+        }
+
+        this.updatingLayout = false;
     }
 
     updateGridSize() {
-        const cellSizePx = this.gridDesign.sizes.cellSizePx
-        this.grid.style.gridTemplateColumns = `repeat(${this.columns()}, ${cellSizePx}px)`
-        this.grid.style.gridTemplateRows    = `repeat(${this.rows()}, ${cellSizePx}px)`
+        const cellPx = this.gridDesign.sizes.cellPx
+        // console.log("cellPx ", this.gridDesign.sizes.cell, cellPx, Math.round(cellPx));
+        this.grid.style.gridTemplateColumns = `repeat(${this.columns()}, ${cellPx}px)`
+        this.grid.style.gridTemplateRows    = `repeat(${this.rows()}, ${cellPx}px)`
         this.grid.style.columnGap           = `${this.gridDesign.sizes.colGap}px`
         this.grid.style.rowGap              = `${this.gridDesign.sizes.rowGap}px`
-        this.grid.style.setProperty('--main', Math.round(cellSizePx) + "px")
+        this.grid.style.setProperty('--main', Math.floor(cellPx) + "px")
 
         if (this.gridDesign.sizes.colGap == 0) {
             this.grid.classList.add('no-gap')
@@ -245,8 +286,8 @@ export class Grid {
     }
 
     updateGridLineStyle() {
-        this.gridDesign.lineTypes.fieldset.sub.disabled = this.gridDesign.style === 'blank'
-        this.gridDesign.lineTypes.fieldset.subber.disabled = this.gridDesign.style !== 'hexa'
+        // this.gridDesign.lineTypes.fieldset.sub.disabled = this.gridDesign.style === 'blank'
+        // this.gridDesign.lineTypes.fieldset.subber.disabled = this.gridDesign.style !== 'hexa'
 
         this.grid.style.setProperty('--sub_style', this.gridDesign.lineTypes.sub)
         this.grid.style.setProperty('--subber_style', this.gridDesign.lineTypes.subber)
@@ -255,7 +296,6 @@ export class Grid {
     createGridCells() {
         const rows  = this.rows()
         const cols  = this.columns()
-        const style = this.gridDesign.style
         const cells = []
 
         for (let i = 0; i < (rows * cols); i++) {
@@ -270,17 +310,13 @@ export class Grid {
                 cell.classList.add('last-column')
             }
 
-            switch(style) {
-                case 'hexa':
-                    const hexaLines = document.createElement('div')
-                    hexaLines.classList.add('hexa-lines')
-                    cell.appendChild(hexaLines)
-                case 'quad':
-                    const quadLines = document.createElement('div')
-                    quadLines.classList.add('quad-lines')
-                    cell.prepend(quadLines)
-                    break;
-            }
+            const quadLines = document.createElement('div')
+            quadLines.classList.add('quad-lines')
+            cell.appendChild(quadLines)
+
+            const hexaLines = document.createElement('div')
+            hexaLines.classList.add('hexa-lines')
+            cell.appendChild(hexaLines)
 
             cells.push(cell)
         }
@@ -297,11 +333,14 @@ export class Grid {
 
         const { PDFDocument } = PDFLib;
         const pdfDoc = await PDFDocument.create();
-        const dpi = parseInt(this.pdfOptions.quality.dpi);
-        
+
+        let dpi = parseInt(this.pdfOptions.quality.dpi);
+        if (!this.units.isInches()) dpi = this.units.round((dpi / 25.4), 100);
+
         // Define the target PDF page dimensions and quality
-        const pageWidth  = parseFloat(this.pageLayout.dimensions.inchesX) * dpi;
-        const pageHeight = parseFloat(this.pageLayout.dimensions.inchesY) * dpi;
+        const pageWidth  = parseFloat(this.pageLayout.dimensions.x) * dpi;
+        const pageHeight = parseFloat(this.pageLayout.dimensions.y) * dpi;
+
 
         const page       = pdfDoc.addPage([pageWidth, pageHeight]);
 
@@ -316,12 +355,12 @@ export class Grid {
         const aspectRatio = imgWidth / imgHeight;
 
         // Determine width and height that fits within the page while preserving aspect ratio
-        let drawWidth = pageWidth - dpi * (2 * this.pageLayout.margins.inchesX)
+        let drawWidth = pageWidth - dpi * (2 * this.pageLayout.margins.x)
         let drawHeight = drawWidth / aspectRatio
   
         // If height is too large to fit within pageHeight, adjust by height
-        if (drawHeight > pageHeight - dpi * this.pageLayout.margins.inchesX) {
-            drawHeight = pageHeight - dpi * this.pageLayout.margins.inchesY
+        if (drawHeight > pageHeight - dpi * this.pageLayout.margins.x) {
+            drawHeight = pageHeight - dpi * this.pageLayout.margins.y
             drawWidth = drawHeight * aspectRatio
         }
 
@@ -344,6 +383,46 @@ export class Grid {
         link.href = URL.createObjectURL(blob);
         link.download = this.pdfOptions.filename.name;
         link.click();
+    }
+
+    isPortrait() {
+        return (this.pageLayout.dimensions.x <= this.pageLayout.dimensions.y);
+    }
+
+    switchOrientation(newOrientation) {
+        if (this.updatingLayout) return;
+
+        const width  = this.pageLayout.dimensions.elements.x;
+        const height = this.pageLayout.dimensions.elements.y;
+        let temp;
+
+        switch (true) {
+            case newOrientation === 'portrait' && !this.isPortrait(): 
+            case newOrientation === 'landscape' && this.isPortrait():
+                temp = width.value;
+                width.value = height.value;
+                height.value = temp;
+                this.refreshPreview();
+                break;
+        }
+    }
+
+    switchUnits(abbrv) {
+        this.units.setCurrent(abbrv);
+        
+        this.units.inputs.forEach((input) => {
+            // check NEW current value
+            if (this.units.isInches()) {
+                input.value = this.units.mmToIn(input.value);
+                input.setAttribute('step', this.units.inStep);
+            }
+            else {
+                input.value = this.units.inToMm(input.value);
+                input.setAttribute('step', this.units.mmStep);
+            }
+        });  
+        
+        this.refreshPreview();
     }
     
     isChanged(key) {

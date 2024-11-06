@@ -9,6 +9,8 @@
     --text-color: black;
     --bg-color: white;
 
+    --btn-color: #aaa;
+
     --window-padding-inline: 1rem;
 }
 
@@ -195,6 +197,52 @@ ul {
 .alert {
     padding: 1rem;
     border: 1px solid var(--text-color);
+}
+
+$btn-border-radius: 5px;
+
+#units {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-flow: row nowrap;
+
+    > li {
+        &:first-of-type label {
+           border-top-left-radius: $btn-border-radius;
+           border-bottom-left-radius: $btn-border-radius;
+        }
+
+        &:last-of-type label {
+            border-top-right-radius: $btn-border-radius;
+            border-bottom-right-radius: $btn-border-radius;
+        }
+    }
+
+    input:checked + label {
+        background-color: whitesmoke;
+    }
+
+    label {
+        padding: .5rem 1rem;
+        cursor: pointer;
+        appearance: button;
+
+        background-color: var(--btn-color);
+        color: black !important;
+        border: 1px solid black;
+    }
+}
+
+#presets {
+    padding: .25rem .5rem;
+}
+
+.configuration.units {
+    &-in .mm,
+    &-mm .in {
+        display: none;
+    }
 }
 
 [class^="config__"] {
@@ -592,11 +640,19 @@ $subcell-size: 5mm;
         border-right: none;
     }
 
+    &[data-style="blank"] {
+        .quad-lines, .hexa-lines { display: none; }
+    }
+    &[data-style="quad"] {
+        .hexa-lines { display: none; }
+    }
+
     .genkouyoushi-cell {
         border: 1px solid var(--main_c);
         border-bottom: none;
         box-sizing: border-box;
         overflow: hidden;
+        position: relative;
         
         &.last-in-column {
             border-bottom: 1px solid var(--main_c);

@@ -59,9 +59,19 @@
         </section>
 
         <div class="main">  
-            <section class="configuration">
+            <section id="configuration" class="configuration units-in" data-units="in">
                 <div class="section-header_wrapper">
                     <h2>Configuration</h2>
+                    <ul id="units" class="btn-group">
+                        <li>
+                            <input type="radio" id="units-in" class="visually-hidden" name="units" data-abbrv="in" checked>
+                            <label for="units-in" aria-label="set units to inches">in</label>
+                        </li>
+                        <li>
+                            <input type="radio" id="units-mm" class="visually-hidden" name="units" data-abbrv="mm">
+                            <label for="units-mm" aria-label="set units to millimeters">mm</label>
+                        </li>
+                    </ul>
                 </div>
         
                 <div class="config__page-layout config-section">
@@ -81,6 +91,7 @@
                             <input 
                                 type="number" 
                                 id="page-width" 
+                                class="unit-value"
                                 min=0
                                 value=8.5
                                 step=0.05>
@@ -90,9 +101,52 @@
                             <input 
                                 type="number" 
                                 id="page-height" 
+                                class="unit-value"
                                 min=0
                                 value=11
                                 step=0.05>
+                            <label for="page-presets">Presets:</label>
+                            <select name="presets" id="presets">
+                                <option value="Legal (US)" data-in-x="8.5" data-in-y="14" data-mm-x="216" data-mm-y="356">
+                                    Legal (US)
+                                    <span class="in">x</span>
+                                    <span class="mm">x</span>
+                                </option>
+                                <option value="Letter (US)" data-in-x="8.5" data-in-y="11" data-mm-x="216" data-mm-y="279" selected>
+                                    Letter (US)
+                                </option>
+                                <option value="A4" data-in-x="8.3" data-in-y="11.7" data-mm-x="210" data-mm-y="297">
+                                    A4
+                                </option>
+                                <option value="B5" data-in-x="6.9" data-in-y="9.8" data-mm-x="176" data-mm-y="250">
+                                    B5
+                                </option>
+                                <option value="A5" data-in-x="5.8" data-in-y="8.3" data-mm-x="148" data-mm-y="210">
+                                    A5
+                                    <span class="in">x</span>
+                                    <span class="mm">x</span>
+                                </option>
+                                <option value="Half-letter" data-in-x="5.5" data-in-y="8.5" data-mm-x="140" data-mm-y="216">
+                                    Half-letter
+                                </option>
+                                <option value="A6" data-in-x="4.1" data-in-y="5.8" data-mm-x="105" data-mm-y="148">
+                                    A6
+                                </option>
+                                <option value="custom">
+                                    Custom
+                                </option>
+                            </select>
+                            <label for="orientation">Orientation:</label>
+                            <ul>
+                                <li>
+                                    <input type="radio" name="orientation" id="portrait" checked>
+                                    <label for="portrait">Portrait</label>
+                                </li> 
+                                <li>
+                                    <input type="radio" name="orientation" id="landscape">
+                                    <label for="Landscape">Landscape</label>
+                                </li> 
+                            </ul>
                         </fieldset>
                 
                         <fieldset class="config__page-layout__margins config-section_sub">
@@ -101,6 +155,7 @@
                             <input 
                                 type="number"
                                 id="margin-x"
+                                class="unit-value"
                                 step=0.05
                                 min=0
                                 value=0.25>
@@ -108,6 +163,7 @@
                             <input 
                                 type="number"
                                 id="margin-y"
+                                class="unit-value"
                                 step=0.05
                                 min=0
                                 value=0.5>
@@ -147,8 +203,10 @@
                             <legend class="section-header">Sizes</legend>
                             <label for="cell-size">Cell Size:</label>
                             <div>
-                                <input type="number" id="cell-size" min=1 value=14 step=1>
-                                <span class="suffix">mm</span>
+                                <!-- <input type="number" id="cell-size" class="unit-value" min=1 value=14 step=1> -->
+                                <input type="number" id="cell-size" class="unit-value" min=0 value=0.5 step=0.05>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
                             </div>
                             <label for="col-gap">Column Gap:</label>
                             <div>
@@ -411,7 +469,7 @@
                 <h2>Preview</h2>
                 <div class="preview-wrapper">
                 <div id="page" class="page a4">
-                    <div id="preview" class="grid genkouyoushi-grid"></div>
+                    <div id="preview" class="grid genkouyoushi-grid" data-style="quad"></div>
                 </div>
                 </div>
             </section>
