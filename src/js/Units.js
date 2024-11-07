@@ -20,7 +20,7 @@ export class Units {
     }
 
     inToMm(inches) {
-        return Math.round(parseFloat(inches) * this.inToMmMultiplier);
+        return this.round(parseFloat(inches) * this.inToMmMultiplier, 1);
     }
 
     inToPx(inches, ceiling = false) {
@@ -33,8 +33,8 @@ export class Units {
     }
 
     mmToPx(mm, ceiling = false) {
-        if (ceiling) return Math.ceil(parseInt(mm) * this.mmToPxMultiplier);
-        return Math.floor(parseInt(mm) * this.mmToPxMultiplier);
+        if (ceiling) return Math.ceil(parseFloat(mm) * this.mmToPxMultiplier);
+        return Math.floor(parseFloat(mm) * this.mmToPxMultiplier);
     }
 
     isInches() {

@@ -6,6 +6,8 @@ export class Grid {
         this.units = new Units();
         this.units.inputs = document.querySelectorAll('.unit-value');
 
+        this.updatingLayout  = false;
+        this.updatingPresets = false;
         this.pageLayout = this.#initPageLayout();
         this.gridDesign = this.#initGridDesign();   
         this.pdfOptions = this.#initPdfOptions();
@@ -15,26 +17,8 @@ export class Grid {
         this.grid    = document.getElementById('preview');
         this.loaded  = true;
 
+        this.updatePresetText();
         this.refreshPreview();
-    }
-
-    createDynamicGetters(config) {
-        const structure = {};
-
-        for (const [section, elements] of Object.entries(config)) {
-            structure[section] = {};
-
-            for (const [property, elementId] of Object.entries(elements)) {
-                const element = document.getElementById(elementId);
-                Object.defineProperty(structure[section], property, {
-                    get() {
-                        return element?.value || null;
-                    }
-                });
-            }
-        }
-
-        return structure;
     }
     
     #initPageLayout() {
@@ -45,16 +29,21 @@ export class Grid {
                 elements: {
                     x: document.getElementById('page-width'),
                     y: document.getElementById('page-height'),
-                },
-                get orientation() { return document.querySelector('input[name="orientation"]:checked').id; }
+                }
             },
             margins: {
                 elements: {
                     x: document.getElementById('margin-x'),
                     y: document.getElementById('margin-y')
                 }
-            }
+            },
+            presets: document.getElementById('presets'),
+            get orientation() { return document.querySelector('input[name="orientation"]:checked').id; }
         };
+
+        Object.defineProperty(pageLayout, 'format', {
+            get() { return pageLayout.presets.options[pageLayout.presets.selectedIndex]; }
+        });
 
         ['dimensions', 'margins'].forEach((key) => {
             Object.defineProperties(pageLayout[key], {
@@ -70,6 +59,33 @@ export class Grid {
             orientation.addEventListener('change', () => {
                 this.switchOrientation(orientation.id);
             });
+        });
+
+        const width   = pageLayout.dimensions.elements.x;
+        const height  = pageLayout.dimensions.elements.y;
+
+        // Update selected preset when width/height is changed
+        [width, height].forEach(dimension => {
+            dimension.addEventListener('change', () => {
+                this.updatePresets();
+            });
+        });
+
+        pageLayout.presets.addEventListener('change', (e) => {
+            if (this.updatingPresets) return;
+    
+            const selected = e.target.options[e.target.selectedIndex];
+    
+            if (selected.id === "custom") return;
+            
+            const abbrv = this.units.currentAbbrv;
+            const x = parseFloat(selected.dataset[abbrv+"X"]);
+            const y = parseFloat(selected.dataset[abbrv+"Y"]);
+            const portrait = this.isPortrait();
+    
+            pageLayout.dimensions.elements.x.value  = portrait ? x : y;
+            pageLayout.dimensions.elements.y.value  = portrait ? y : x;
+            this.refreshPreview();
         });
 
         return pageLayout;
@@ -105,15 +121,15 @@ export class Grid {
         };
 
         Object.defineProperties(designOptions.sizes, {
-            cell: { get() { return parseFloat(designOptions.sizes.elements.cell.value); } },
+            cell:   { get() { return parseFloat(designOptions.sizes.elements.cell.value); } },
             colGap: { get() { return parseInt(designOptions.sizes.elements.colGap.value); } },
             rowGap: { get() { return parseInt(designOptions.sizes.elements.rowGap.value); } },
             cellPx: { get() { return self.units.toPx(designOptions.sizes.cell); } }
         });
 
         Object.defineProperties(designOptions.colors, {
-            main: { get() { return designOptions.colors.elements.main.value; } },
-            sub:  { get() { return designOptions.colors.elements.sub.value; } },
+            main:   { get() { return designOptions.colors.elements.main.value; } },
+            sub:    { get() { return designOptions.colors.elements.sub.value; } },
             subber: { get() { return designOptions.colors.elements.subber.value; } },
         });
 
@@ -144,18 +160,25 @@ export class Grid {
     #initPdfOptions() {
         const self = this;
         const gridOptions = this.gridDesign;
-        const pdfOptions = this.createDynamicGetters({
+        
+        const pdfOptions = {
             quality: {
-                scale: 'scale',
-                dpi: 'dpi'
+                elements: {
+                    scale: document.getElementById('scale'),
+                    dpi: document.getElementById('dpi')
+                }
+            },
+            filename: {
+                element: document.getElementById('pdf-name')
             }
-        });
-
-        pdfOptions.filename = {
-            element: document.getElementById('pdf-name')
         };
 
-        ['size', 'gap', 'style'].forEach((option) => {
+        Object.defineProperties(pdfOptions.quality, {
+            scale: { get() { return parseInt(pdfOptions.quality.elements.scale.value); } },
+            dpi:   { get() { return parseInt(pdfOptions.quality.elements.dpi.value); } }
+        });
+
+        ['dimensions', 'size', 'gap', 'style'].forEach((option) => {
             Object.defineProperty(pdfOptions.filename, option, {
                 get() { return document.getElementById(option)?.checked || false; }
             });
@@ -164,6 +187,16 @@ export class Grid {
         Object.defineProperty(pdfOptions.filename, 'name', {
             get() {
                 let filename = "genkouyoushi";
+
+                if (pdfOptions.filename.dimensions) {
+                    const format = self.pageLayout.format
+                    const dimensions = 
+                        format.classList.contains('custom') 
+                            ? self.pageLayout.dimensions.x + "x" + self.pageLayout.dimensions.y
+                            : format.id;
+                    filename += `_${dimensions.replaceAll(".", "-")}`;
+                }
+
                 if (pdfOptions.filename.size) {
                     const cellSize = `${gridOptions.sizes.cell}`;
                     filename += `_${cellSize.replace(".", "")}${self.units.currentAbbrv}`;
@@ -225,18 +258,22 @@ export class Grid {
         this.updatingLayout = true;
         this.page.style.width = this.pageLayout.dimensions.pxX + "px";
         this.page.style.height = this.pageLayout.dimensions.pxY + "px";
-        this.page.style.padding = `${this.pageLayout.margins.pxY} ${this.pageLayout.margins.pxX}`;
+        this.page.style.padding = `${this.pageLayout.margins.pxY} ${this.pageLayout.margins.pxX}`; 
 
-        if (this.pageLayout.dimensions.orientation === 'portrait' && !this.isPortrait()) {
+        this.updateOrientation();
+
+        this.updatingLayout = false;
+    }
+
+    updateOrientation() {
+        if (this.pageLayout.orientation === 'portrait' && !this.isPortrait()) {
             const landscape = document.getElementById('landscape');
             landscape.click();
         }
-        else if (this.pageLayout.dimensions.orientation === 'landscape' && this.isPortrait()) {
+        else if (this.pageLayout.orientation === 'landscape' && this.isPortrait()) {
             const portrait = document.getElementById('portrait');
             portrait.click();
         }
-
-        this.updatingLayout = false;
     }
 
     updateGridSize() {
@@ -321,6 +358,53 @@ export class Grid {
         this.pdfOptions.filename.element.innerText = this.pdfOptions.filename.name;
     }
 
+    // async generatePDF() {
+    //     await this.refreshPreview();
+
+    //     const script = document.createElement('script');
+    //     script.src   = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js";
+    //     script.defer = true;
+
+    //     document.body.appendChild(script);
+
+    //     script.addEventListener('load', () => {
+    //         const marginX = this.pageLayout.margins.x;
+    //         const marginY = this.pageLayout.margins.y;
+
+    //         let format  = this.pageLayout.format.id;
+    //         if (['custom', 'half-letter'].includes(format)) {
+    //             format = [this.pageLayout.dimensions.x, this.pageLayout.dimensions.y];
+    //         }
+
+    //         let dpi = parseInt(this.pdfOptions.quality.dpi);
+    //         if (!this.units.isInches()) dpi = this.units.round((dpi / 25.4), 100);
+
+    //         const options = {
+    //             // margin:      [marginY, marginX, marginY, marginX],
+    //             margin: 0,
+    //             filename:    this.pdfOptions.filename.name,
+    //             image:       { type: 'jpeg', quality: 1 },
+    //             html2canvas: { 
+    //                 scale: this.pdfOptions.quality.scale, 
+    //                 dpi: dpi,
+    //                 quality: 3
+    //             },
+    //             jsPDF: { 
+    //                 orientation: this.pageLayout.orientation,
+    //                 unit: this.units.currentAbbrv, 
+    //                 format: format, 
+    //             }
+    //         };
+
+    //         console.log(options);
+
+    //         html2pdf().set(options).from(this.page).save()
+    //         .then(() => {
+    //             document.body.removeChild(script);
+    //         });
+    //     });
+    // }
+
     async generatePDF() {
         await this.refreshPreview()
 
@@ -336,7 +420,7 @@ export class Grid {
         const page       = pdfDoc.addPage([pageWidth, pageHeight]);
 
         // Capture the content using html2canvas
-        const canvas   = await html2canvas(this.grid, { scale: this.pdfOptions.quality.scale });
+        const canvas   = await html2canvas(this.page, { scale: this.pdfOptions.quality.scale });
         const imgData  = canvas.toDataURL('image/png');
         const pngImage = await pdfDoc.embedPng(imgData);
 
@@ -356,15 +440,20 @@ export class Grid {
         }
 
         // Center the image on the page
-        const xOffset = (pageWidth - drawWidth) / 2;
-        const yOffset = (pageHeight - drawHeight) / 2;
+        // const xOffset = (pageWidth - drawWidth) / 2;
+        // const yOffset = (pageHeight - drawHeight) / 2;
+
+        const xOffset = 0;
+        const yOffset = 0;
 
         // Draw the image at the calculated size
         page.drawImage(pngImage, {
             x: xOffset,
             y: yOffset,
-            width: drawWidth,
-            height: drawHeight,
+            // width: drawWidth,
+            // height: drawHeight,
+            width: pageWidth,
+            height: pageHeight
         });
     
         // Save and download the PDF
@@ -374,6 +463,48 @@ export class Grid {
         link.href = URL.createObjectURL(blob);
         link.download = this.pdfOptions.filename.name;
         link.click();
+    }
+
+    updatePresets() {
+        this.updatingPresets = true;
+
+        let preset = 'Custom';
+        const isPortrait = this.isPortrait();
+        const abbrv = this.units.currentAbbrv;
+
+        const x = isPortrait ? this.pageLayout.dimensions.x : this.pageLayout.dimensions.y;
+        const y = isPortrait ? this.pageLayout.dimensions.y : this.pageLayout.dimensions.x;
+
+        for (let i = 0; i < this.pageLayout.presets.options.length; i++) {
+            const option = this.pageLayout.presets.options[i];
+            
+            if (option.id === 'custom') break;
+
+            if (x == option.dataset[abbrv + "X"] && y == option.dataset[abbrv + "Y"]) {
+                preset = option.value;
+                break;
+            }
+        }
+
+        this.pageLayout.presets.value = preset;
+        this.updatingPresets = false;
+
+        if (this.pageLayout.orientation === 'portrait' && !isPortrait || this.pageLayout.orientation === 'landscape' && isPortrait) {
+            this.updatingLayout = true;
+            this.updateOrientation();
+            this.updatingLayout = false;
+        }
+    }
+
+    updatePresetText() {
+        for (let i = 0; i < this.pageLayout.presets.options.length; i++) {
+            const option = this.pageLayout.presets.options[i];
+    
+            if (option.id === "custom") continue;
+    
+            const abbrv = this.units.currentAbbrv;
+            option.innerText = `${option.value} (${option.dataset[abbrv+"X"]} x ${option.dataset[abbrv+"Y"]})`;
+        }
     }
 
     isPortrait() {
@@ -399,25 +530,38 @@ export class Grid {
     }
 
     switchUnits(abbrv) {
+        const toInches = abbrv === 'in';
+        const isPortrait = this.isPortrait();
         this.units.setCurrent(abbrv);
         
         this.units.inputs.forEach((input) => {
-            // check NEW current value
-            if (this.units.isInches()) {
-                input.value = this.units.mmToIn(input.value);
-                input.setAttribute('step', this.units.inStep);
+            let newValue;
+
+            // use formula conversion on cell size or width/height when the selected preset is 'custom'
+            if (!input.classList.contains('dimension') || this.pageLayout.format.id === 'custom') {
+                newValue = toInches ? this.units.mmToIn(input.value) : this.units.inToMm(input.value);
             }
+            // otherwise, use the data attributes from the selected preset
             else {
-                input.value = this.units.inToMm(input.value);
-                input.setAttribute('step', this.units.mmStep);
+                switch (true) {
+                    case input.dataset.axis === 'x':
+                        newValue = isPortrait ? this.pageLayout.format.dataset[abbrv + "X"] : this.pageLayout.format.dataset[abbrv + "Y"];
+                        break;
+                    case input.dataset.axis === 'y':
+                        newValue = isPortrait ? this.pageLayout.format.dataset[abbrv + "Y"] : this.pageLayout.format.dataset[abbrv + "X"];
+                        break;
+                }
             }
+
+            input.value = newValue;
+            (toInches) ? input.setAttribute('step', this.units.inStep) : input.setAttribute('step', this.units.mmStep);
         });  
         
+        this.updatePresets();
         this.refreshPreview();
     }
     
     isChanged(key) {
         // return this.defaults[key] !== this[key]
     }
-    
 }
