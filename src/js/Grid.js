@@ -185,16 +185,16 @@ export class Grid {
     }
 
     #initButtons() {
-        const buttons = document.querySelectorAll('.onclick')
+        const buttons = document.querySelectorAll('.onclick');
 
         buttons.forEach(button => {
-            const method = button.id
+            const method = button.id;
 
             if (typeof this[method] === 'function') {
-                button.addEventListener('click', this[method].bind(this))
+                button.addEventListener('click', this[method].bind(this));
             }
             else {
-                console.warn(`Method name ${method} does not exist in Grid class`)
+                console.warn(`Method name ${method} does not exist in Grid class`);
             }
         });
     }
@@ -202,33 +202,30 @@ export class Grid {
     columns() {
         const borderWidth = 1;
         const gridWidthPx = Math.floor(this.pageLayout.dimensions.pxX - 2 * this.pageLayout.margins.pxX);
-        // console.log("x", this.pageLayout.dimensions.x, this.pageLayout.dimensions.pxX);
-        // console.log("y", this.pageLayout.dimensions.y, this.pageLayout.dimensions.pxY);
         return Math.floor(gridWidthPx / (this.gridDesign.sizes.cellPx + borderWidth + parseInt(this.gridDesign.sizes.colGap)))
     }
 
     rows() {
         const borderWidth = 1;
-        const gridHeightPx = Math.floor(this.pageLayout.dimensions.pxY - 2 * this.pageLayout.margins.pxY)
-        return Math.floor(gridHeightPx / (this.gridDesign.sizes.cellPx + borderWidth + parseInt(this.gridDesign.sizes.rowGap)))
+        const gridHeightPx = Math.floor(this.pageLayout.dimensions.pxY - 2 * this.pageLayout.margins.pxY);
+        return Math.floor(gridHeightPx / (this.gridDesign.sizes.cellPx + borderWidth + parseInt(this.gridDesign.sizes.rowGap)));
     }
 
     async refreshPreview() {
-        this.updatePageLayout()
-        this.updateGridSize()
-        this.updateGridStyle()
-        this.updateGridColors()
-        this.updateGridLineStyle()
-        this.createGridCells()
-        this.updateFilename()
-        // console.log(this.rows(), this.columns())
+        this.updatePageLayout();
+        this.updateGridSize();
+        this.updateGridStyle();
+        this.updateGridColors();
+        this.updateGridLineStyle();
+        this.createGridCells();
+        this.updateFilename();
     }
 
     updatePageLayout() {
         this.updatingLayout = true;
-        this.page.style.width = this.pageLayout.dimensions.pxX + "px"
-        this.page.style.height = this.pageLayout.dimensions.pxY + "px"
-        this.page.style.padding = `${this.pageLayout.margins.pxY} ${this.pageLayout.margins.pxX}`
+        this.page.style.width = this.pageLayout.dimensions.pxX + "px";
+        this.page.style.height = this.pageLayout.dimensions.pxY + "px";
+        this.page.style.padding = `${this.pageLayout.margins.pxY} ${this.pageLayout.margins.pxX}`;
 
         if (this.pageLayout.dimensions.orientation === 'portrait' && !this.isPortrait()) {
             const landscape = document.getElementById('landscape');
@@ -243,31 +240,30 @@ export class Grid {
     }
 
     updateGridSize() {
-        const cellPx = this.gridDesign.sizes.cellPx
-        // console.log("cellPx ", this.gridDesign.sizes.cell, cellPx, Math.round(cellPx));
-        this.grid.style.gridTemplateColumns = `repeat(${this.columns()}, ${cellPx}px)`
-        this.grid.style.gridTemplateRows    = `repeat(${this.rows()}, ${cellPx}px)`
-        this.grid.style.columnGap           = `${this.gridDesign.sizes.colGap}px`
-        this.grid.style.rowGap              = `${this.gridDesign.sizes.rowGap}px`
-        this.grid.style.setProperty('--main', Math.floor(cellPx) + "px")
+        const cellPx = this.gridDesign.sizes.cellPx;
+        this.grid.style.gridTemplateColumns = `repeat(${this.columns()}, ${cellPx}px)`;
+        this.grid.style.gridTemplateRows    = `repeat(${this.rows()}, ${cellPx}px)`;
+        this.grid.style.columnGap           = `${this.gridDesign.sizes.colGap}px`;
+        this.grid.style.rowGap              = `${this.gridDesign.sizes.rowGap}px`;
+        this.grid.style.setProperty('--main', Math.floor(cellPx) + "px");
 
         if (this.gridDesign.sizes.colGap == 0) {
-            this.grid.classList.add('no-gap')
+            this.grid.classList.add('no-gap');
         }
         else {
-            this.grid.classList.remove('no-gap')
+            this.grid.classList.remove('no-gap');
         }
     }
 
     updateGridStyle() {
         ['none', 'quad', 'hexa'].forEach((type) => {
             if (type === this.gridDesign.style) {
-                this.grid.classList.add(type)
+                this.grid.classList.add(type);
             }
             else {
-                this.grid.classList.remove(type)
+                this.grid.classList.remove(type);
             }
-        })
+        });
     }
 
     updateGridColors() {
@@ -275,53 +271,50 @@ export class Grid {
             'main',
             'sub',
             'subber'
-        ]
+        ];
           
         colors.forEach((type) => {
             this.grid.style.setProperty(
                 `--${type}_c`, 
                 this.gridDesign.colors[type]
-            )
-        })
+            );
+        });
     }
 
     updateGridLineStyle() {
-        // this.gridDesign.lineTypes.fieldset.sub.disabled = this.gridDesign.style === 'blank'
-        // this.gridDesign.lineTypes.fieldset.subber.disabled = this.gridDesign.style !== 'hexa'
-
-        this.grid.style.setProperty('--sub_style', this.gridDesign.lineTypes.sub)
-        this.grid.style.setProperty('--subber_style', this.gridDesign.lineTypes.subber)
+        this.grid.style.setProperty('--sub_style', this.gridDesign.lineTypes.sub);
+        this.grid.style.setProperty('--subber_style', this.gridDesign.lineTypes.subber);
     }
 
     createGridCells() {
-        const rows  = this.rows()
-        const cols  = this.columns()
-        const cells = []
+        const rows  = this.rows();
+        const cols  = this.columns();
+        const cells = [];
 
         for (let i = 0; i < (rows * cols); i++) {
-            const cell = document.createElement('div')
-            cell.classList.add('genkouyoushi-cell')
+            const cell = document.createElement('div');
+            cell.classList.add('genkouyoushi-cell');
 
             if (this.gridDesign.sizes.rowGap > 0 || (i + 1) % rows === 0) {
-                cell.classList.add('last-in-column')
+                cell.classList.add('last-in-column');
             }
 
             if (this.gridDesign.sizes.colGap == 0 && cols - (i / rows) <= 1) {
-                cell.classList.add('last-column')
+                cell.classList.add('last-column');
             }
 
-            const quadLines = document.createElement('div')
-            quadLines.classList.add('quad-lines')
-            cell.appendChild(quadLines)
+            const quadLines = document.createElement('div');
+            quadLines.classList.add('quad-lines');
+            cell.appendChild(quadLines);
 
-            const hexaLines = document.createElement('div')
-            hexaLines.classList.add('hexa-lines')
-            cell.appendChild(hexaLines)
+            const hexaLines = document.createElement('div');
+            hexaLines.classList.add('hexa-lines');
+            cell.appendChild(hexaLines);
 
-            cells.push(cell)
+            cells.push(cell);
         }
 
-        this.grid.replaceChildren(...cells)
+        this.grid.replaceChildren(...cells);
     }
 
     updateFilename() {
@@ -340,8 +333,6 @@ export class Grid {
         // Define the target PDF page dimensions and quality
         const pageWidth  = parseFloat(this.pageLayout.dimensions.x) * dpi;
         const pageHeight = parseFloat(this.pageLayout.dimensions.y) * dpi;
-
-
         const page       = pdfDoc.addPage([pageWidth, pageHeight]);
 
         // Capture the content using html2canvas

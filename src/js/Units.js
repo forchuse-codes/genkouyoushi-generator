@@ -23,7 +23,8 @@ export class Units {
         return Math.round(parseFloat(inches) * this.inToMmMultiplier);
     }
 
-    inToPx(inches) {
+    inToPx(inches, ceiling = false) {
+        if (ceiling) return Math.ceil(parseFloat(inches) * this.inToPxMultiplier);
         return Math.floor(parseFloat(inches) * this.inToPxMultiplier);
     }
 
@@ -31,7 +32,8 @@ export class Units {
         return this.round(mm / this.inToMmMultiplier);
     }
 
-    mmToPx(mm) {
+    mmToPx(mm, ceiling = false) {
+        if (ceiling) return Math.ceil(parseInt(mm) * this.mmToPxMultiplier);
         return Math.floor(parseInt(mm) * this.mmToPxMultiplier);
     }
 
@@ -39,14 +41,14 @@ export class Units {
         return this.current === this.INCHES;
     }
 
-    toPx(value) {
-        return (this.isInches() ? this.inToPx(value) : this.mmToPx(value));
+    toPx(value, ceiling = false) {
+        return (this.isInches() ? this.inToPx(value, ceiling) : this.mmToPx(value, ceiling));
     }
 
     round(value, precision = 2, round = true) {
         const multiplier = 10 * precision;
-        // console.log(value, multiplier, Math.floor((value + Number.EPSILON) * multiplier) / multiplier);
-        return (round ? Math.round((value + Number.EPSILON) * multiplier) / multiplier : Math.floor((value + Number.EPSILON) * multiplier) / multiplier);
+        if (round) return Math.round((value + Number.EPSILON) * multiplier) / multiplier;
+        return Math.floor((value + Number.EPSILON) * multiplier) / multiplier;
     }
 
     setCurrent(abbrv) {

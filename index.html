@@ -34,6 +34,10 @@
                 </p>
                 <ul>
                     <li>
+                        <strong>Units</strong>
+                        <p>choose between inches and millimeters</p>
+                    </li>
+                    <li>
                         <strong>Page Layout</strong> 
                         <p>adjust to match the desired size/margins of the final printed page</p>
                     </li>
@@ -49,11 +53,18 @@
             </div>
             <div>
                 <p>
+                    Some options, such as page size presets, orientation, and grid styles/colors, will automatically refresh the preview 
+                    upon selection or change.
+                </p>
+                <p>
                     Click the <strong>Refresh Preview</strong> button to see what the grid will look like provided the changes you made, 
                     and <strong>Download as PDF</strong> when you're satisfied with the results! 
                     Downloading will automatically refresh the preview to ensure it downloads with the most up to date configuration.
                 </p>
-        <!--         <p class="alert"><strong>Note:</strong> there's some weirdness where not all grid lines show up on all cell sizes (such as 15mm), so make sure to refresh the preview and adjust the cell size until they all show up.</p> -->
+                <p class="alert">
+                    <strong>Note:</strong> due to the decimal value nature of conversion between inches and millimeters, minor differences
+                    in cell size, row/column counts, etc due to rounding are unavoidable when swapping between unit types.
+                </p>
             </div>
             
         </section>
@@ -62,7 +73,7 @@
             <section id="configuration" class="configuration units-in" data-units="in">
                 <div class="section-header_wrapper">
                     <h2>Configuration</h2>
-                    <ul id="units" class="btn-group">
+                    <!-- <ul id="units" class="btn-group">
                         <li>
                             <input type="radio" id="units-in" class="visually-hidden" name="units" data-abbrv="in" checked>
                             <label for="units-in" aria-label="set units to inches">in</label>
@@ -71,7 +82,14 @@
                             <input type="radio" id="units-mm" class="visually-hidden" name="units" data-abbrv="mm">
                             <label for="units-mm" aria-label="set units to millimeters">mm</label>
                         </li>
-                    </ul>
+                    </ul> -->
+                    <div class="unit-button-wrapper">
+                        <span>Units:</span>
+                        <div id="units" class="btn-group">
+                            <button class="selected" data-abbrv="in" title="Switch units to inches" aria-label="Switch units to inches">in</button>
+                            <button data-abbrv="mm" title="Switch units to millimeters" aria-label="Switch units to millimeters">mm</button>
+                        </div>
+                    </div>
                 </div>
         
                 <div class="config__page-layout config-section">
@@ -88,23 +106,31 @@
                             <label for="page-width">
                             Width:
                             </label>
-                            <input 
-                                type="number" 
-                                id="page-width" 
-                                class="unit-value"
-                                min=0
-                                value=8.5
-                                step=0.05>
+                            <div>
+                                <input 
+                                    type="number" 
+                                    id="page-width" 
+                                    class="unit-value"
+                                    min=0
+                                    value=8.5
+                                    step=0.05>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
                             <label for="page-height">
                             Height:
                             </label>
-                            <input 
-                                type="number" 
-                                id="page-height" 
-                                class="unit-value"
-                                min=0
-                                value=11
-                                step=0.05>
+                            <div>
+                                <input 
+                                    type="number" 
+                                    id="page-height" 
+                                    class="unit-value"
+                                    min=0
+                                    value=11
+                                    step=0.05>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
                             <label for="page-presets">Presets:</label>
                             <select name="presets" id="presets">
                                 <option value="Legal (US)" data-in-x="8.5" data-in-y="14" data-mm-x="216" data-mm-y="356">
@@ -152,21 +178,29 @@
                         <fieldset class="config__page-layout__margins config-section_sub">
                             <legend class="section-header">Margins</legend>
                             <label for="margin-x">Left/Right:</label>
-                            <input 
-                                type="number"
-                                id="margin-x"
-                                class="unit-value"
-                                step=0.05
-                                min=0
-                                value=0.25>
+                            <div>
+                                <input 
+                                    type="number"
+                                    id="margin-x"
+                                    class="unit-value"
+                                    step=0.05
+                                    min=0
+                                    value=0.25>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
                             <label for="margin-y">Top/Bottom:</label>
-                            <input 
-                                type="number"
-                                id="margin-y"
-                                class="unit-value"
-                                step=0.05
-                                min=0
-                                value=0.5>
+                            <div>
+                                <input 
+                                    type="number"
+                                    id="margin-y"
+                                    class="unit-value"
+                                    step=0.05
+                                    min=0
+                                    value=0.5>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
                         </fieldset>
                     </div>
 
@@ -180,6 +214,14 @@
                                 <div>
                                     <strong>Dimensions:</strong>
                                     <p>The width and height of the printed page in inches</p>
+                                </div>
+                                <div>
+                                    <strong>Presets:</strong>
+                                    <p>A selection of preset standardized paper sizes, both US and International (preview refreshes on selection)</p>
+                                </div>
+                                <div>
+                                    <strong>Orientation:</strong>
+                                    <p>Choose between Landscape and Portrait (preview refreshes on selection)</p>
                                 </div>
                                 <div>
                                     <strong>Margins:</strong>
@@ -468,7 +510,7 @@
             <section class="preview">
                 <h2>Preview</h2>
                 <div class="preview-wrapper">
-                <div id="page" class="page a4">
+                <div id="page" class="page">
                     <div id="preview" class="grid genkouyoushi-grid" data-style="quad"></div>
                 </div>
                 </div>

@@ -29,34 +29,19 @@ import {Grid} from './Grid.js'
     });
 
     const config = document.getElementById("configuration");
-    const unit_labels = document.querySelectorAll('input[name="units"]+label');
-    const units = [];
-    unit_labels.forEach(btn => {
-        const input = document.getElementById(btn.getAttribute('for'));
-        units.push({
-            label: btn,
-            input: input
-        });
-    });    
+    const unit_btns = document.querySelectorAll(".btn-group > button");
+    unit_btns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.classList.contains('selected')) return;
+            unit_btns.forEach(btn => btn.classList.remove('selected'));
+            btn.classList.add('selected');
 
-    const units_list = document.getElementById('units');
-    units_list.addEventListener('mouseup', (e) => {
-        units.forEach((unit) => {
-            const abbrv = unit.input.dataset.abbrv;
-            const unit_class = "units-" + abbrv;
-
-            if (e.target === unit.label) {
-                if (grid.units.currentAbbrv === abbrv) return;
-                grid.switchUnits(abbrv);
-                config.classList.add(unit_class);
-                updatePresetText();
-            }
-            else {
-                config.classList.remove(unit_class);
-            }
-            
+            const abbrv = btn.dataset.abbrv;
+            config.setAttribute('data-units', abbrv)
+            grid.switchUnits(abbrv);
+            updatePresetText();
         });
-    });
+    })
 
     const width   = document.getElementById('page-width');
     const height  = document.getElementById('page-height');
