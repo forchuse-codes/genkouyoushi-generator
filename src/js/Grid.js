@@ -118,6 +118,9 @@ export class Grid {
                 get subber() { return document.querySelector('input[name="subber_line-type"]:checked').value || 'dashed'; }
             },
             // writing direction
+            /**
+             * @todo add checkbox/radio/btn group to toggle direction in vocab mode
+             */
             ltr: true,
             vocab: {
                 elements: {
@@ -305,19 +308,20 @@ export class Grid {
 
     updateGridSize() {
         const cellPx = this.gridDesign.sizes.cellPx;
-        const colGap = this.gridDesign.sizes.colGap;
-        const rowGap = this.gridDesign.sizes.rowGap;
         const ltr    = this.gridDesign.ltr;
         
-        this.grid.style.columnGap           = `${colGap}px`;
-        this.grid.style.rowGap              = `${this.gridDesign.sizes.rowGap}px`;
         this.grid.style.setProperty('--main', Math.floor(cellPx) + "px");
         this.grid.classList.add((ltr ? 'ltr' : 'rtl'));
 
         let columnTemplate = "unset";
         let rowTemplate    = "unset";
+        let colGap = this.gridDesign.sizes.colGap;
+        let rowGap = this.gridDesign.sizes.rowGap;
 
         if (this.wordCount()) {
+            colGap = this.gridDesign.vocab.gap;
+            rowGap = this.gridDesign.vocab.gap;
+
             let words = Array.prototype.slice.call(this.gridDesign.vocab.words);
             let totalSize = 0;
 
@@ -332,7 +336,7 @@ export class Grid {
 
             words = words.map(word => {
                 if (totalSize >= maxSize) return null;
-                const wordSize = word * cellPx + (ltr ? colGap : rowGap);
+                const wordSize = word * cellPx + this.gridDesign.vocab.gap;
                 
                 if (totalSize + wordSize > maxSize) return null;
                 totalSize += wordSize;
@@ -353,6 +357,8 @@ export class Grid {
             rowTemplate    = `repeat(${this.rows()}, ${cellPx}px)`;
         }
 
+        this.grid.style.columnGap           = `${colGap}px`;
+        this.grid.style.rowGap              = `${rowGap}px`;
         this.grid.style.gridTemplateColumns = columnTemplate;
         this.grid.style.gridTemplateRows    = rowTemplate;
 
