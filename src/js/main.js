@@ -18,7 +18,7 @@ import {Grid} from './Grid.js'
     });
 
     const config = document.getElementById("configuration");
-    const unit_btns = document.querySelectorAll(".btn-group > button");
+    const unit_btns = document.querySelectorAll("#units > button");
     unit_btns.forEach(btn => {
         btn.addEventListener('click', () => {
             if (btn.classList.contains('selected')) return;
@@ -30,5 +30,47 @@ import {Grid} from './Grid.js'
             grid.switchUnits(abbrv);
             grid.updatePresetText();
         });
+    });
+
+    const vocabSection = document.getElementById('vocab-section');
+    const vocabList = document.getElementById("vocab-list");
+    const addWord = document.getElementById("add-word");
+    addWord.addEventListener('click', () => {
+        vocabSection.classList.remove('empty');
+
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('word-wrapper');
+
+        const input = document.createElement('input');
+        const id    = "word-" + document.querySelectorAll('.word').length;
+        input.type  = "number";
+        input.class = "word";
+        input.min   = 1;
+        // input.value = Math.round(Math.random() * (5 - 1) + 1);
+        input.value = 1;
+        input.id    = id;
+
+        wrapper.appendChild(input);
+
+        const label = document.createElement('label');
+        label.for   = id;
+        label.innerText = "Characters";
+        label.classList.add('visually-hidden');
+
+        wrapper.appendChild(label);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.title = "Remove word";
+        deleteBtn.innerText = '-';
+        deleteBtn.addEventListener('click', () => {
+            vocabList.removeChild(wrapper);
+
+            if (!vocabList.children.length) vocabSection.classList.add('empty');
+            else vocabSection.classList.remove('empty');
+        });
+
+        wrapper.appendChild(deleteBtn);
+
+        vocabList.appendChild(wrapper);
     });
 })()
