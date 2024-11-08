@@ -674,6 +674,8 @@ $subcell-size: 5mm;
         box-sizing: border-box;
         overflow: hidden;
         position: relative;
+        width: var(--main);
+        height: var(--main);
         
         &.last-in-column {
             border-bottom: 1px solid var(--main_c);
@@ -690,6 +692,20 @@ $subcell-size: 5mm;
             }
         }
 
+    }
+}
+
+.cell-column-wrapper {
+    display: flex;
+}
+
+.cell-column {
+    > .genkouyoushi-cell {
+        border-right: none;
+    }
+
+    &:last-of-type > .genkouyoushi-cell {
+        border-right: 1px solid var(--main_c);
     }
 }
 

@@ -31,4 +31,38 @@ import {Grid} from './Grid.js'
             grid.updatePresetText();
         });
     });
+
+    const vocabList = document.getElementById("vocab-list");
+    const addWord = document.getElementById("add-word");
+    addWord.addEventListener('click', () => {
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('word-wrapper');
+
+        const input = document.createElement('input');
+        const id    = "word-" + document.querySelectorAll('.word').length;
+        input.type  = "number";
+        input.class = "word";
+        input.min   = 1;
+        input.value = Math.round(Math.random() * (5 - 1) + 1);
+        input.id    = id;
+
+        wrapper.appendChild(input);
+
+        const label = document.createElement('label');
+        label.for   = id;
+        label.innerText = "characters";
+
+        wrapper.appendChild(label);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.title = "Remove word";
+        deleteBtn.innerText = '-';
+        deleteBtn.addEventListener('click', () => {
+            vocabList.removeChild(wrapper);
+        });
+
+        wrapper.appendChild(deleteBtn);
+
+        vocabList.appendChild(wrapper);
+    });
 })()

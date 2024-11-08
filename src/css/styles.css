@@ -555,6 +555,8 @@ button {
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
+  width: var(--main);
+  height: var(--main);
 }
 .genkouyoushi-grid .genkouyoushi-cell.last-in-column {
   border-bottom: 1px solid var(--main_c);
@@ -567,6 +569,17 @@ button {
 .genkouyoushi-grid .genkouyoushi-cell table td {
   border: 1px dashed gainsboro;
   border-top: none;
+}
+
+.cell-column-wrapper {
+  display: flex;
+}
+
+.cell-column > .genkouyoushi-cell {
+  border-right: none;
+}
+.cell-column:last-of-type > .genkouyoushi-cell {
+  border-right: 1px solid var(--main_c);
 }
 
 .preview-wrapper {

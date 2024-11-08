@@ -117,6 +117,7 @@ export class Grid {
                 get sub() { return document.querySelector('input[name="sub_line-type"]:checked').value || 'dashed'; },
                 get subber() { return document.querySelector('input[name="subber_line-type"]:checked').value || 'dashed'; }
             },
+            vocab: document.getElementById('vocab-list'),
             get style() { return document.querySelector('input[name="grid-style"]:checked').value || 'quad'; }
         };
 
@@ -234,6 +235,12 @@ export class Grid {
 
     columns() {
         const borderWidth = 1;
+        // let cellPx = this.gridDesign.sizes.cellPx;
+        // let gap = parseInt(this.gridDesign.sizes.colGap);
+        if (this.wordCount()) {
+            return this.wordCount();
+        }
+
         const gridWidthPx = Math.floor(this.pageLayout.dimensions.pxX - 2 * this.pageLayout.margins.pxX);
         return Math.floor(gridWidthPx / (this.gridDesign.sizes.cellPx + borderWidth + parseInt(this.gridDesign.sizes.colGap)))
     }
@@ -242,6 +249,10 @@ export class Grid {
         const borderWidth = 1;
         const gridHeightPx = Math.floor(this.pageLayout.dimensions.pxY - 2 * this.pageLayout.margins.pxY);
         return Math.floor(gridHeightPx / (this.gridDesign.sizes.cellPx + borderWidth + parseInt(this.gridDesign.sizes.rowGap)));
+    }
+
+    wordCount() {
+        return this.gridDesign.vocab.children.length;
     }
 
     async refreshPreview() {
@@ -258,7 +269,7 @@ export class Grid {
         this.updatingLayout = true;
         this.page.style.width = this.pageLayout.dimensions.pxX + "px";
         this.page.style.height = this.pageLayout.dimensions.pxY + "px";
-        this.page.style.padding = `${this.pageLayout.margins.pxY} ${this.pageLayout.margins.pxX}`; 
+        this.page.style.padding = `${this.pageLayout.margins.pxY}px ${this.pageLayout.margins.pxX}px`; 
 
         this.updateOrientation();
 
@@ -278,11 +289,48 @@ export class Grid {
 
     updateGridSize() {
         const cellPx = this.gridDesign.sizes.cellPx;
-        this.grid.style.gridTemplateColumns = `repeat(${this.columns()}, ${cellPx}px)`;
-        this.grid.style.gridTemplateRows    = `repeat(${this.rows()}, ${cellPx}px)`;
-        this.grid.style.columnGap           = `${this.gridDesign.sizes.colGap}px`;
+        const colGap = this.gridDesign.sizes.colGap;
+        
+        this.grid.style.columnGap           = `${colGap}px`;
         this.grid.style.rowGap              = `${this.gridDesign.sizes.rowGap}px`;
         this.grid.style.setProperty('--main', Math.floor(cellPx) + "px");
+
+        if (this.wordCount()) {
+            let columns = Array.prototype.slice.call(this.gridDesign.vocab.children);
+            let totalWidth = 0;
+
+            columns = columns.map((word) => {
+                const input = word.querySelector('input');
+                return parseInt(input.value);
+            });
+
+            this.gridDesign.words = {
+                count: this.wordCount(),
+                characters: columns
+            };
+
+            let gridWidth = this.pageLayout.dimensions.pxX - 2 * this.pageLayout.margins.pxX;
+
+            columns = columns.map(col => {
+                console.log(col, totalWidth);
+                if (totalWidth >= gridWidth) return null;
+                const colWidth = col * cellPx + colGap;
+                
+                if (totalWidth + colWidth > gridWidth) return null;
+                totalWidth += colWidth;
+
+                return col;
+            })
+            .filter(col => col !== null);
+
+            const columnTemplate = columns.map((word) => (word * cellPx) + "px");
+            this.grid.style.gridTemplateColumns = columnTemplate.join(" ");
+            this.grid.style.gridTemplateRows = "unset";
+        }
+        else {
+            this.grid.style.gridTemplateColumns = `repeat(${this.columns()}, ${cellPx}px)`;
+            this.grid.style.gridTemplateRows    = `repeat(${this.rows()}, ${cellPx}px)`;
+        }
 
         if (this.gridDesign.sizes.colGap == 0) {
             this.grid.classList.add('no-gap');
@@ -328,30 +376,91 @@ export class Grid {
         const cols  = this.columns();
         const cells = [];
 
-        for (let i = 0; i < (rows * cols); i++) {
-            const cell = document.createElement('div');
-            cell.classList.add('genkouyoushi-cell');
+        const words = this.gridDesign.vocab.children;
 
-            if (this.gridDesign.sizes.rowGap > 0 || (i + 1) % rows === 0) {
-                cell.classList.add('last-in-column');
+        if (words.length) {
+            for (const charCount of this.gridDesign.words.characters) {
+                const wordWrapper = document.createElement('div');
+                wordWrapper.classList.add('cell-column-wrapper');
+
+                for (let i = 0; i < charCount; i++) {
+                    wordWrapper.append(this.createGridCellColumn(rows, 1));
+                }
+                cells.push(wordWrapper);
             }
+        }
+        else {
+            
+            for (let i = 0; i < (rows * cols); i++) {
+                const classes = [];
+                const cell = document.createElement('div');
+                cell.classList.add('genkouyoushi-cell');
 
-            if (this.gridDesign.sizes.colGap == 0 && cols - (i / rows) <= 1) {
-                cell.classList.add('last-column');
+                if (this.gridDesign.sizes.rowGap > 0 || (i + 1) % rows === 0) {
+                    cell.classList.add('last-in-column');
+                }
+
+                if (this.gridDesign.sizes.colGap == 0 && cols - (i / rows) <= 1) {
+                    cell.classList.add('last-column');
+                }
+
+                const quadLines = document.createElement('div');
+                quadLines.classList.add('quad-lines');
+                cell.appendChild(quadLines);
+
+                const hexaLines = document.createElement('div');
+                hexaLines.classList.add('hexa-lines');
+                cell.appendChild(hexaLines);
+
+                cells.push(this.createGridCell(classes));
             }
-
-            const quadLines = document.createElement('div');
-            quadLines.classList.add('quad-lines');
-            cell.appendChild(quadLines);
-
-            const hexaLines = document.createElement('div');
-            hexaLines.classList.add('hexa-lines');
-            cell.appendChild(hexaLines);
-
-            cells.push(cell);
         }
 
         this.grid.replaceChildren(...cells);
+    }
+
+    createGridCellColumn(rows = 1, cols = 1) {
+        const cells = document.createElement('div');
+        cells.classList.add('cell-column');
+
+        for (let i = 0; i < (rows * cols); i++) {
+            const classes = [];
+
+            if (this.gridDesign.sizes.rowGap > 0 || (i + 1) % rows === 0) {
+                classes.push('last-in-column');
+            }
+
+            if (this.gridDesign.sizes.colGap == 0 && cols - (i / rows) <= 1) {
+                classes.push('last-column');
+            }
+
+            cells.appendChild(this.createGridCell(classes));
+        }
+
+        return cells;
+    }
+
+    createGridCell(classes = []) {
+        const cell = document.createElement('div');
+        cell.classList.add('genkouyoushi-cell');
+
+        classes.forEach(className => {
+            cell.classList.add(className);
+        });
+
+        const quadLines = document.createElement('div');
+        quadLines.classList.add('quad-lines');
+        cell.appendChild(quadLines);
+
+        const hexaLines = document.createElement('div');
+        hexaLines.classList.add('hexa-lines');
+        cell.appendChild(hexaLines);
+
+        return cell;
+    }
+
+    createWordWrapper() {
+
     }
 
     updateFilename() {
