@@ -32,9 +32,12 @@ import {Grid} from './Grid.js'
         });
     });
 
+    const vocabSection = document.getElementById('vocab-section');
     const vocabList = document.getElementById("vocab-list");
     const addWord = document.getElementById("add-word");
     addWord.addEventListener('click', () => {
+        vocabSection.classList.remove('empty');
+
         const wrapper = document.createElement('div');
         wrapper.classList.add('word-wrapper');
 
@@ -50,7 +53,8 @@ import {Grid} from './Grid.js'
 
         const label = document.createElement('label');
         label.for   = id;
-        label.innerText = "characters";
+        label.innerText = "Characters";
+        label.classList.add('visually-hidden');
 
         wrapper.appendChild(label);
 
@@ -59,6 +63,9 @@ import {Grid} from './Grid.js'
         deleteBtn.innerText = '-';
         deleteBtn.addEventListener('click', () => {
             vocabList.removeChild(wrapper);
+
+            if (!vocabList.children.length) vocabSection.classList.add('empty');
+            else vocabSection.classList.remove('empty');
         });
 
         wrapper.appendChild(deleteBtn);

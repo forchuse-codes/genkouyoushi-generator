@@ -324,15 +324,7 @@
                                 </fieldset>
                             </div>
                         </div>
-                        
-                        <div>
-                            <fieldset class="config__grid__vocab config-section_sub">
-                                <div id="vocab-list">
-                                </div>
-                                <button id="add-word">Add Word</button>
-                            </fieldset>
-                        </div>
-                
+
                         <fieldset class="config__grid__style config-section_sub">
                             <legend class="section-header">Style</legend>
                             <ul class="grid-style">
@@ -362,6 +354,28 @@
                                 </li>
                             </ul>
                         </fieldset>
+                        
+                        <div class="fieldset fieldset__100">
+                            <div class="section-header"><h4>Vocab Mode</h4></div>
+                            <fieldset id="vocab-section" class="config__grid__vocab config-section_sub empty">
+                                <div class="vocab-header">
+                                    <button id="add-word">Add Word</button>                                     
+                                    <div class="word-gap">
+                                        <input id="word-gap" type="number" min="1" value="20">
+                                        <label for="word-gap">Word Gap</label>
+                                    </div>
+                                </div>
+                                <div class="vocab-list__wrapper">
+                                    <legend class="section-header">Characters</legend>
+                                    <div id="vocab-list">
+                                    </div>
+                                    <!-- <div class="vocab-size__warning">
+                                        <p>You have too many words and/or characters; they won't all fit!</p>
+                                    </div> -->
+                                </div>
+                                
+                            </fieldset>
+                        </div>
                     </div>
 
                     <dialog id="help__grid-design" class="help-modal">
