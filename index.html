@@ -354,28 +354,6 @@
                                 </li>
                             </ul>
                         </fieldset>
-                        
-                        <div class="fieldset fieldset__100">
-                            <div class="section-header"><h4>Vocab Mode</h4></div>
-                            <fieldset id="vocab-section" class="config__grid__vocab config-section_sub empty">
-                                <div class="vocab-header">
-                                    <button id="add-word">Add Word</button>                                     
-                                    <div class="word-gap">
-                                        <input id="word-gap" type="number" min="1" value="20">
-                                        <label for="word-gap">Word Gap</label>
-                                    </div>
-                                </div>
-                                <div class="vocab-list__wrapper">
-                                    <legend class="section-header">Characters</legend>
-                                    <div id="vocab-list">
-                                    </div>
-                                    <!-- <div class="vocab-size__warning">
-                                        <p>You have too many words and/or characters; they won't all fit!</p>
-                                    </div> -->
-                                </div>
-                                
-                            </fieldset>
-                        </div>
                     </div>
 
                     <dialog id="help__grid-design" class="help-modal">
@@ -442,6 +420,108 @@
                                     <div>
                                         <p>Number of guidelines within each square: none, two (four subsquares), or six (sixteen subsquares)</p>
                                     </div>
+                                </details>
+                            </div>
+                        </div>
+                    </dialog>
+                </div>
+
+                <div class="config__vocab config-section">
+                    <div class="section-title">
+                        <div>
+                            <h3>Vocab Mode</h3>
+                            <button class="section-help" aria-controls="help__vocab-mode" aria-expanded="false" title="Vocab Mode Help">
+                            </button>
+                        </div>
+                    </div>
+                    <div id="vocab-section" class="config__grid__vocab config-section_sub span-all empty">
+                        <div class="vocab-header">
+                            <button id="add-word">Add Word</button>                                     
+                        </div>
+                        <fieldset class="vocab-list__wrapper hide-when-empty">
+                            <legend class="section-header">Characters</legend>
+                            <div id="vocab-list">
+                            </div>
+                        </fieldset>
+                        <div class="fieldset vocab-options hide-when-empty">
+                            <h5 class="section-header">Options</h5>
+                            <fieldset id="direction" class="btn-group span-all">
+                                <legend>Direction</legend>
+                                <ul>
+                                    <li>
+                                        <input id="ltr" type="radio" name="direction" checked>
+                                        <label for="ltr">Left to Right</label>
+                                    </li>
+                                    <li>
+                                        <input id="rtl" type="radio" name="direction">
+                                        <label for="rtl">Right to Left</label>
+                                    </li>
+                                </ul>
+                            </fieldset>
+                            <div class="word-gap span-all">
+                                <label for="word-gap">Word Gap:</label>
+                                <input id="word-gap" type="number" min="1" value="20">
+                            </div>
+                        </div>
+                        <!-- <div class="vocab-size__warning span-all">
+                                <p>You have too many words and/or characters; they won't all fit!</p>
+                            </div> -->
+                    </div>
+
+                    <dialog id="help__vocab-mode" class="help-modal">
+                        <div class="help-modal__content">
+                            <div class="help-modal__header">
+                                <h4>Vocab Mode Help</h4>
+                                <button class="close-help" title="Close help window">X</button>
+                            </div>
+                            
+                            <div class="help-modal__body">
+                                <details name="vocab-mode" open>
+                                    <summary>General</summary>
+                                    <p>
+                                        Vocab Mode groups columns or rows (depending on selected Direction) into groups determined by each word's character count,
+                                        allowing you to have clear delineation between words while maximizing utilization of the page's available space.
+                                    </p>
+                                    <p>
+                                        Click the <strong>Add Word</strong> button to add an additional word to the list and set its character count in the
+                                        newly-created number input. Once you're happy with your word list, clike on <strong>Refresh Preview</strong> 
+                                        to see how it looks!
+                                    </p>
+                                    <p>
+                                        <strong>Note:</strong> if not all of the word groups are added to the preview, there's not enough room! Remove words and/or
+                                        decrease character counts until they all fit.
+                                    </p>
+                                </details>
+                                <details name="vocab-mode">
+                                    <summary>Options</summary>
+                                    <ul>
+                                        <li>
+                                            <strong>Direction:</strong>
+                                            <p>
+                                                <strong>Left to Right (horizontal) -></strong> word groups are split into columns so the characters will be written side by side with
+                                                repetitions going down the column.
+                                            </p>
+                                            <p>
+                                                <strong>Right to Left (vertical) -></strong> word groups are split into rows to write characters vertically such as in traditional
+                                                Japanese style with repetitions going to the side across the page.
+                                            </p>
+                                        </li>
+                                        <li>
+                                            <strong>Word Gap:</strong>
+                                            <p>
+                                                In Vocab Mode, this value replaces the Column Gap and Row Gap options from Grid Design. This acts as a column gap when in Left to Right
+                                                and a row gap when in Right to Left.
+                                            </p>
+                                        </li>
+                                    </ul>
+                                </details>
+                                <details name="vocab-mode">
+                                    <summary>Characters</summary>
+                                    <p>
+                                        A list of all the words added to your vocab study sheet with their respective character counts.
+                                        Adjust them up or down to change the word's length, or click the red minus button to their right to delete
+                                        that specific word.
+                                    </p>
                                 </details>
                             </div>
                         </div>
@@ -554,16 +634,16 @@
             </section>
         </div>
         
-        <div class="aside">
-            <section class="preview">
+        <aside class="aside">
+            <div class="preview">
                 <h2>Preview</h2>
                 <div class="preview-wrapper">
                 <div id="page" class="page">
-                    <div id="preview" class="grid genkouyoushi-grid" data-style="quad"></div>
+                    <div id="preview" class="grid genkouyoushi-grid" data-direction="ltr" data-style="quad"></div>
                 </div>
                 </div>
-            </section>
-        </div>
+            </div>
+        </aside>
     </main>
 </body>
 </html>

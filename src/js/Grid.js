@@ -117,16 +117,12 @@ export class Grid {
                 get sub() { return document.querySelector('input[name="sub_line-type"]:checked').value || 'dashed'; },
                 get subber() { return document.querySelector('input[name="subber_line-type"]:checked').value || 'dashed'; }
             },
-            // writing direction
-            /**
-             * @todo add checkbox/radio/btn group to toggle direction in vocab mode
-             */
-            ltr: true,
             vocab: {
                 elements: {
                     words: document.getElementById('vocab-list'),
                     gap: document.getElementById('word-gap')
                 },
+                get direction() { return document.querySelector('input[name="direction"]:checked').id },
                 characters: []
             },
             get style() { return document.querySelector('input[name="grid-style"]:checked').value || 'quad'; }
@@ -147,7 +143,8 @@ export class Grid {
 
         Object.defineProperties(designOptions.vocab, {
             gap: { get() { return parseInt(designOptions.vocab.elements.gap.value); } },
-            words: { get() { return designOptions.vocab.elements.words.children; } }
+            words: { get() { return designOptions.vocab.elements.words.children; } },
+            ltr: { get() { return designOptions.vocab.direction === 'ltr'; } }
         });
 
         const styles = document.querySelectorAll('input[name="grid-style"]');
@@ -250,7 +247,7 @@ export class Grid {
     }
 
     columns() {
-        if (this.gridDesign.ltr && this.wordCount()) {
+        if (this.gridDesign.vocab.ltr && this.wordCount()) {
             return this.wordCount();
         }
         
@@ -261,7 +258,7 @@ export class Grid {
     }
 
     rows() {
-        if (!this.gridDesign.ltr && this.wordCount()) {
+        if (!this.gridDesign.vocab.ltr && this.wordCount()) {
             return this.wordCount();
         }
         const borderWidth = 1;
@@ -308,10 +305,10 @@ export class Grid {
 
     updateGridSize() {
         const cellPx = this.gridDesign.sizes.cellPx;
-        const ltr    = this.gridDesign.ltr;
+        const ltr    = this.gridDesign.vocab.ltr;
         
         this.grid.style.setProperty('--main', Math.floor(cellPx) + "px");
-        this.grid.classList.add((ltr ? 'ltr' : 'rtl'));
+        this.grid.setAttribute('data-direction', this.gridDesign.vocab.direction);
 
         let columnTemplate = "unset";
         let rowTemplate    = "unset";
@@ -349,7 +346,7 @@ export class Grid {
             
             const template = words.map((word) => (word * cellPx) + "px");
 
-            if (this.gridDesign.ltr) columnTemplate = template.join(" ");
+            if (this.gridDesign.vocab.ltr) columnTemplate = template.join(" ");
             else rowTemplate = template.join(" ");
         }
         else {
@@ -402,7 +399,7 @@ export class Grid {
     }
 
     createGridCells() {
-        const ltr   = this.gridDesign.ltr;
+        const ltr   = this.gridDesign.vocab.ltr;
         const rows  = this.rows();
         const cols  = this.columns();
         let   cells = [];
@@ -482,53 +479,6 @@ export class Grid {
         this.pdfOptions.filename.element.innerText = this.pdfOptions.filename.name;
     }
 
-    // async generatePDF() {
-    //     await this.refreshPreview();
-
-    //     const script = document.createElement('script');
-    //     script.src   = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js";
-    //     script.defer = true;
-
-    //     document.body.appendChild(script);
-
-    //     script.addEventListener('load', () => {
-    //         const marginX = this.pageLayout.margins.x;
-    //         const marginY = this.pageLayout.margins.y;
-
-    //         let format  = this.pageLayout.format.id;
-    //         if (['custom', 'half-letter'].includes(format)) {
-    //             format = [this.pageLayout.dimensions.x, this.pageLayout.dimensions.y];
-    //         }
-
-    //         let dpi = parseInt(this.pdfOptions.quality.dpi);
-    //         if (!this.units.isInches()) dpi = this.units.round((dpi / 25.4), 100);
-
-    //         const options = {
-    //             // margin:      [marginY, marginX, marginY, marginX],
-    //             margin: 0,
-    //             filename:    this.pdfOptions.filename.name,
-    //             image:       { type: 'jpeg', quality: 1 },
-    //             html2canvas: { 
-    //                 scale: this.pdfOptions.quality.scale, 
-    //                 dpi: dpi,
-    //                 quality: 3
-    //             },
-    //             jsPDF: { 
-    //                 orientation: this.pageLayout.orientation,
-    //                 unit: this.units.currentAbbrv, 
-    //                 format: format, 
-    //             }
-    //         };
-
-    //         console.log(options);
-
-    //         html2pdf().set(options).from(this.page).save()
-    //         .then(() => {
-    //             document.body.removeChild(script);
-    //         });
-    //     });
-    // }
-
     async generatePDF() {
         await this.refreshPreview()
 
@@ -548,25 +498,6 @@ export class Grid {
         const imgData  = canvas.toDataURL('image/png');
         const pngImage = await pdfDoc.embedPng(imgData);
 
-        // Calculate the aspect ratio of captured image
-        const imgWidth  = pngImage.width;
-        const imgHeight = pngImage.height;
-        const aspectRatio = imgWidth / imgHeight;
-
-        // Determine width and height that fits within the page while preserving aspect ratio
-        let drawWidth = pageWidth - dpi * (2 * this.pageLayout.margins.x)
-        let drawHeight = drawWidth / aspectRatio
-  
-        // If height is too large to fit within pageHeight, adjust by height
-        if (drawHeight > pageHeight - dpi * this.pageLayout.margins.x) {
-            drawHeight = pageHeight - dpi * this.pageLayout.margins.y
-            drawWidth = drawHeight * aspectRatio
-        }
-
-        // Center the image on the page
-        // const xOffset = (pageWidth - drawWidth) / 2;
-        // const yOffset = (pageHeight - drawHeight) / 2;
-
         const xOffset = 0;
         const yOffset = 0;
 
@@ -574,8 +505,6 @@ export class Grid {
         page.drawImage(pngImage, {
             x: xOffset,
             y: yOffset,
-            // width: drawWidth,
-            // height: drawHeight,
             width: pageWidth,
             height: pageHeight
         });

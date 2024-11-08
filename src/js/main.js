@@ -18,7 +18,7 @@ import {Grid} from './Grid.js'
     });
 
     const config = document.getElementById("configuration");
-    const unit_btns = document.querySelectorAll(".btn-group > button");
+    const unit_btns = document.querySelectorAll("#units > button");
     unit_btns.forEach(btn => {
         btn.addEventListener('click', () => {
             if (btn.classList.contains('selected')) return;
@@ -46,7 +46,8 @@ import {Grid} from './Grid.js'
         input.type  = "number";
         input.class = "word";
         input.min   = 1;
-        input.value = Math.round(Math.random() * (5 - 1) + 1);
+        // input.value = Math.round(Math.random() * (5 - 1) + 1);
+        input.value = 1;
         input.id    = id;
 
         wrapper.appendChild(input);
