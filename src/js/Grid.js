@@ -199,7 +199,7 @@ export class Grid {
 
                 if (pdfOptions.filename.size) {
                     const cellSize = `${gridOptions.sizes.cell}`;
-                    filename += `_${cellSize.replace(".", "")}${self.units.currentAbbrv}`;
+                    filename += `_${cellSize.replace(".", "-")}${self.units.currentAbbrv}`;
                 }
                 
                 if (pdfOptions.filename.gap) {
