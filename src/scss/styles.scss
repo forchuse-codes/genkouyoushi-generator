@@ -9,6 +9,9 @@
     --text-color: black;
     --bg-color: white;
 
+    --btn-color: #aaa;
+    // --btn-color: #444;
+
     --window-padding-inline: 1rem;
 }
 
@@ -92,8 +95,9 @@ section {
     > h2,
     > .section-header_wrapper {
         display: flex;
-        flex-flow: row wrap;
+        flex-flow: row nowrap;
         align-items: center;
+        justify-content: space-between;
         gap: 1rem;
         width: 100%;
     }
@@ -165,19 +169,23 @@ main {
         margin-left: 1rem;
         display: grid;
         gap: 1rem;
+        grid-auto-rows: min-content;
         
         strong {
             flex: 0 1 0;
             white-space: nowrap;
+            min-width: 10ch;
         }
 
         li {
             align-items: start;
             column-gap: 1.5rem;
+            flex-wrap: wrap;
         }
 
         p {
             flex: 1 1 0;
+            min-width: min(30ch, 100%);
         }
     }
 }
@@ -195,6 +203,62 @@ ul {
 .alert {
     padding: 1rem;
     border: 1px solid var(--text-color);
+}
+
+.unit-button-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	flex-shrink: 1;
+	justify-content: center;
+}
+
+$btn-border-radius: 5px;
+
+.btn-group {
+    display: flex;
+    flex-flow: row nowrap;
+
+    > button {
+        border-radius: 0;
+        border: none;
+        cursor: pointer;
+        background-color: var(--btn-color);
+        color: white;
+        font-size: 1rem;
+
+        &:not(:first-of-type) {
+            border-left: 2px solid black;
+        }
+
+        &:first-of-type {
+           border-top-left-radius: $btn-border-radius;
+           border-bottom-left-radius: $btn-border-radius;
+        }
+
+        &:last-of-type {
+            border-top-right-radius: $btn-border-radius;
+            border-bottom-right-radius: $btn-border-radius;
+        }
+
+        &.selected {
+            cursor: default;
+            background-color: whitesmoke !important;
+            color: black;
+        }
+    }
+}
+
+#presets {
+    padding: .25rem .5rem;
+}
+
+.configuration {
+    &[data-units="in"] .mm,
+    &[data-units="mm"] .in {
+        display: none;
+    }
 }
 
 [class^="config__"] {
@@ -221,7 +285,17 @@ ul {
 .fieldset > .section-header {
     margin-top: -.75rem;
     margin-bottom: .5rem;
+    
+}
+
+.section-header {
     grid-column: 1 / -1;
+}
+
+#dpi + span {
+    max-width: 20ch;
+    font-size: small;
+    line-height: 1rem;
 }
 
 .section-title > div,
@@ -282,6 +356,7 @@ ul {
         justify-content: space-between;
         align-items: center;
         padding: 1rem;
+        font-size: 1.25rem;
     }
 
     &__content {
@@ -395,7 +470,7 @@ ul {
 }
 
 input[type="number"] {
-    width: 4rem;
+    width: 4.5rem;
     // height: 1.5rem;
     font-size: 1rem;
     line-height: 1.5rem;
@@ -572,12 +647,6 @@ $subcell-size: 5mm;
     border: 1px solid black;
 }
 
-.a4 {
-    width: 816px;
-    height: 1056px;
-    padding: 48px 26px;
-}
-
 // Main Grid (Outer Grid)
 .genkouyoushi-grid {
     display: grid;
@@ -586,10 +655,17 @@ $subcell-size: 5mm;
     align-content: center;
     width: 100%;
     height: 100%;
-    // overflow: hidden;
+    overflow: hidden;
 
     &.no-gap > .genkouyoushi-cell:not(.last-column) {
         border-right: none;
+    }
+
+    &[data-style="blank"] {
+        .quad-lines, .hexa-lines { display: none; }
+    }
+    &[data-style="quad"] {
+        .hexa-lines { display: none; }
     }
 
     .genkouyoushi-cell {
@@ -597,6 +673,7 @@ $subcell-size: 5mm;
         border-bottom: none;
         box-sizing: border-box;
         overflow: hidden;
+        position: relative;
         
         &.last-in-column {
             border-bottom: 1px solid var(--main_c);

@@ -34,6 +34,10 @@
                 </p>
                 <ul>
                     <li>
+                        <strong>Units</strong>
+                        <p>choose between inches and millimeters</p>
+                    </li>
+                    <li>
                         <strong>Page Layout</strong> 
                         <p>adjust to match the desired size/margins of the final printed page</p>
                     </li>
@@ -49,19 +53,33 @@
             </div>
             <div>
                 <p>
+                    Some options, such as page size presets, orientation, and grid styles/colors, will automatically refresh the preview 
+                    upon selection or change.
+                </p>
+                <p>
                     Click the <strong>Refresh Preview</strong> button to see what the grid will look like provided the changes you made, 
                     and <strong>Download as PDF</strong> when you're satisfied with the results! 
                     Downloading will automatically refresh the preview to ensure it downloads with the most up to date configuration.
                 </p>
-        <!--         <p class="alert"><strong>Note:</strong> there's some weirdness where not all grid lines show up on all cell sizes (such as 15mm), so make sure to refresh the preview and adjust the cell size until they all show up.</p> -->
+                <p class="alert">
+                    <strong>Note:</strong> due to the decimal value nature of conversion between inches and millimeters, minor differences
+                    in cell size, row/column counts, etc due to rounding are unavoidable when swapping between unit types.
+                </p>
             </div>
             
         </section>
 
         <div class="main">  
-            <section class="configuration">
+            <section id="configuration" class="configuration units-in" data-units="in">
                 <div class="section-header_wrapper">
                     <h2>Configuration</h2>
+                    <div class="unit-button-wrapper">
+                        <span>Units:</span>
+                        <div id="units" class="btn-group">
+                            <button class="selected" data-abbrv="in" title="Switch units to inches" aria-label="Switch units to inches">in</button>
+                            <button data-abbrv="mm" title="Switch units to millimeters" aria-label="Switch units to millimeters">mm</button>
+                        </div>
+                    </div>
                 </div>
         
                 <div class="config__page-layout config-section">
@@ -78,39 +96,122 @@
                             <label for="page-width">
                             Width:
                             </label>
-                            <input 
-                                type="number" 
-                                id="page-width" 
-                                min=0
-                                value=8.5
-                                step=0.05>
+                            <div>
+                                <input 
+                                    type="number" 
+                                    id="page-width" 
+                                    class="unit-value dimension"
+                                    data-axis="x"
+                                    min=0
+                                    value=8.5
+                                    step=0.05>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
                             <label for="page-height">
                             Height:
                             </label>
-                            <input 
-                                type="number" 
-                                id="page-height" 
-                                min=0
-                                value=11
-                                step=0.05>
+                            <div>
+                                <input 
+                                    type="number" 
+                                    id="page-height" 
+                                    class="unit-value dimension"
+                                    data-axis="y"
+                                    min=0
+                                    value=11
+                                    step=0.05>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
+                            <label for="page-presets">Presets:</label>
+                            <select name="presets" id="presets">
+                                <option id="a4" value="A4" data-in-x="8.3" data-in-y="11.7" data-mm-x="210" data-mm-y="297">
+                                    A4
+                                </option>
+
+                                <option id="a5" value="A5" data-in-x="5.8" data-in-y="8.3" data-mm-x="148" data-mm-y="210">
+                                    A5
+                                </option>
+
+                                <option id="a6" value="A6" data-in-x="4.1" data-in-y="5.8" data-mm-x="105" data-mm-y="148">
+                                    A6
+                                </option>
+
+                                <option id="a7" value="A7" data-in-x="2.9" data-in-y="4.1" data-mm-x="74" data-mm-y="105">
+                                    A7
+                                </option>
+
+                                <option id="b5" value="B5" data-in-x="6.9" data-in-y="9.8" data-mm-x="176" data-mm-y="250">
+                                    B5
+                                </option>
+
+                                <option id="half-letter" value="Half-letter" data-in-x="5.5" data-in-y="8.5" data-mm-x="140" data-mm-y="216">
+                                    Half-letter
+                                </option>
+
+                                <option id="index-card-lg" class="custom" value="Index Card - L" data-in-x="5" data-in-y="8" data-mm-x="127" data-mm-y="203.2">
+                                    Index Card
+                                </option>
+
+                                <option id="index-card-md" class="custom" value="Index Card - M" data-in-x="4" data-in-y="6" data-mm-x="101.6" data-mm-y="152.4">
+                                    Index Card
+                                </option>
+
+                                <option id="index-card" class="custom" value="Index Card - S" data-in-x="3" data-in-y="5" data-mm-x="76.2" data-mm-y="127">
+                                    Index Card
+                                </option>
+                                
+                                <option id="legal" value="Legal" data-in-x="8.5" data-in-y="14" data-mm-x="216" data-mm-y="356">
+                                    Legal
+                                </option>
+
+                                <option id="letter" value="Letter" data-in-x="8.5" data-in-y="11" data-mm-x="216" data-mm-y="279" selected>
+                                    Letter
+                                </option>
+
+                                <option id="custom" class="custom" value="Custom">
+                                    Custom
+                                </option>
+                            </select>
+                            <label for="orientation">Orientation:</label>
+                            <ul>
+                                <li>
+                                    <input type="radio" name="orientation" id="portrait" checked>
+                                    <label for="portrait">Portrait</label>
+                                </li> 
+                                <li>
+                                    <input type="radio" name="orientation" id="landscape">
+                                    <label for="Landscape">Landscape</label>
+                                </li> 
+                            </ul>
                         </fieldset>
                 
                         <fieldset class="config__page-layout__margins config-section_sub">
                             <legend class="section-header">Margins</legend>
                             <label for="margin-x">Left/Right:</label>
-                            <input 
-                                type="number"
-                                id="margin-x"
-                                step=0.05
-                                min=0
-                                value=0.25>
+                            <div>
+                                <input 
+                                    type="number"
+                                    id="margin-x"
+                                    class="unit-value"
+                                    step=0.05
+                                    min=0
+                                    value=0.25>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
                             <label for="margin-y">Top/Bottom:</label>
-                            <input 
-                                type="number"
-                                id="margin-y"
-                                step=0.05
-                                min=0
-                                value=0.5>
+                            <div>
+                                <input 
+                                    type="number"
+                                    id="margin-y"
+                                    class="unit-value"
+                                    step=0.05
+                                    min=0
+                                    value=0.5>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
                         </fieldset>
                     </div>
 
@@ -124,6 +225,14 @@
                                 <div>
                                     <strong>Dimensions:</strong>
                                     <p>The width and height of the printed page in inches</p>
+                                </div>
+                                <div>
+                                    <strong>Presets:</strong>
+                                    <p>A selection of preset standardized paper sizes, both US and International (preview refreshes on selection)</p>
+                                </div>
+                                <div>
+                                    <strong>Orientation:</strong>
+                                    <p>Choose between Landscape and Portrait (preview refreshes on selection)</p>
                                 </div>
                                 <div>
                                     <strong>Margins:</strong>
@@ -147,8 +256,10 @@
                             <legend class="section-header">Sizes</legend>
                             <label for="cell-size">Cell Size:</label>
                             <div>
-                                <input type="number" id="cell-size" min=1 value=14 step=1>
-                                <span class="suffix">mm</span>
+                                <!-- <input type="number" id="cell-size" class="unit-value" min=1 value=14 step=1> -->
+                                <input type="number" id="cell-size" class="unit-value" min=0 value=0.5 step=0.05>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
                             </div>
                             <label for="col-gap">Column Gap:</label>
                             <div>
@@ -328,27 +439,32 @@
                         <div class="config__row config-section_sub">
                             <h4 class="section-header">Quality</h4>
                             <label for="scale">Scale:</label>
-                            <input type="number" id="scale" min="1" max="10" value="6">
-                            <label for="dpi">DPI:</label>
-                            <input type="number" id="dpi" min="72" value="300">
+                            <input type="number" id="scale" min="1" max="10" value="4">
+                            <label for="dpi">DPI*:</label>
+                            <input type="number" id="dpi" min="72" value="72">
+                            <span class="section-header">* see PDF Options Help for more information</span>
                         </div>
                 
                         <div class="config-section_sub">
                             <fieldset>
                                 <legend class="section-header">Filename</legend>
                                 <ul>
-                                <li>
-                                    <input type="checkbox" name="filename" id="size" data-target="#cell-size" checked>
-                                    <label for="size">Cell Size</label>
-                                </li>
-                                <li>
-                                    <input type="checkbox" id="gap" name="filename" data-target="#col-gap">
-                                    <label for="gap">Gap</label>
-                                </li>
-                                <li>
-                                    <input type="checkbox" id="style" name="filename" data-target="grid-style" checked>
-                                    <label for="style">Style</label>
-                                </li>
+                                    <li>
+                                        <input type="checkbox" name="filename" id="dimensions" data-target="#presets" checked>
+                                        <label for="dimensions">Page Size</label>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" name="filename" id="size" data-target="#cell-size" checked>
+                                        <label for="size">Cell Size</label>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" id="gap" name="filename" data-target="#col-gap">
+                                        <label for="gap">Gap</label>
+                                    </li>
+                                    <li>
+                                        <input type="checkbox" id="style" name="filename" data-target="grid-style" checked>
+                                        <label for="style">Style</label>
+                                    </li>
                                 </ul>
                             </fieldset>
                         </div>
@@ -368,18 +484,29 @@
                                 <ul>
                                     <li>
                                         <strong>Scale:</strong>
-                                        <p>Overall quality (from 1-10) of the saved PDF. The higher the Scale, the larger the resulting file size. A <strong>6 Scale</strong> with a <strong>300 DPI</strong> should result in a ~300 KB file.</p>
+                                        <p>Overall quality (from 1-10) of the saved PDF. The higher the Scale, the larger the resulting file size.</p>
                                     </li>
                                     <li>
                                         <strong>DPI:</strong>
-                                        <p>Dots Per Inch; a printing version of screen resolution. The higher this number, the higher the quality (and file size)</p>
+                                        <p>
+                                            Dots Per Inch; a printing version of screen resolution. The higher this number, the higher the quality (and file size). 
+                                        </p>
+                                        <p class="alert">
+                                            <strong>Note:</strong> Increasing DPI will also affect the PDF's final dimensions as far as printing is concerned.
+                                            For example, 8.5in would be 8.5in at 72 dpi and 35.42in at 300 dpi. It can still be scaled in the print setup process
+                                            if printing to a different physical page than configured in Page Layout, but the cell size may wind up being 
+                                            different than expected. When increasing the DPI, it's best to print it on the same size paper as set in Page Layout.
+                                        </p>
                                     </li>
                                 </ul>
-
                             </details>
                             <details name="pdf-options">
                                 <summary>Filename</summary>
                                 <ul>
+                                    <li>
+                                        <strong>Page Size:</strong>
+                                        <p>Adds the page size (preset name or width x height if custom) to the filename</p>
+                                    </li>
                                     <li>
                                         <strong>Cell Size:</strong>
                                         <p>Adds the cell size in mm to the filename</p>
@@ -410,8 +537,8 @@
             <section class="preview">
                 <h2>Preview</h2>
                 <div class="preview-wrapper">
-                <div id="page" class="page a4">
-                    <div id="preview" class="grid genkouyoushi-grid"></div>
+                <div id="page" class="page">
+                    <div id="preview" class="grid genkouyoushi-grid" data-style="quad"></div>
                 </div>
                 </div>
             </section>
