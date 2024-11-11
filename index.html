@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="src/css/styles.css">
+    <link rel="preload" href="src/svg/link-icon.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="src/svg/link-icon__top.svg" as="image" type="image/svg+xml">
+    <link rel="preload" href="src/svg/link-icon__bottom.svg" as="image" type="image/svg+xml">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
     <script type="module" src="src/js/main.js" defer></script>
@@ -186,10 +189,15 @@
                             </ul>
                         </fieldset>
                 
-                        <fieldset class="config__page-layout__margins config-section_sub">
+                        <fieldset id="margin-fieldset" class="config__page-layout__margins config-section_sub" data-x-linked="true" data-y-linked="true">
                             <legend class="section-header">Margins</legend>
-                            <label for="margin-x">Left/Right:</label>
-                            <div>
+                            <div class="margin-label margins-linked" data-type="x">
+                                <input id="linked-x" class="visually-hidden link-icon__checkbox" aria-hidden="true" type="checkbox" data-type="x" checked>
+                                <label class="link-icon margins-linked" data-type="x" for="linked-x" aria-label="Break link between left and right margins" title="Break link between left and right margins">
+                                </label>
+                                <label for="margin-x">Left/Right:</label>
+                            </div>
+                            <div class="margins-linked" data-type="x">
                                 <input 
                                     type="number"
                                     id="margin-x"
@@ -200,11 +208,83 @@
                                 <span class="suffix mm">mm</span>
                                 <span class="suffix in">in</span>
                             </div>
-                            <label for="margin-y">Top/Bottom:</label>
-                            <div>
+
+                            <div class="margin-label margins-unlinked" data-type="x">
+                                <button class="link-margins link-icon link-icon__top" data-type="x" data-copy-to="right" data-copy-from="left" title="Link Left and Right margins using Left's value">
+                                </button>
+                                <label for="margin-left">Left:</label>
+                            </div>
+                            <div class="margins-unlinked" data-type="x">
+                                <input 
+                                    type="number"
+                                    id="margin-left"
+                                    class="unit-value"
+                                    step=0.05
+                                    min=0
+                                    value=0.25>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
+
+                            <div class="margin-label margins-unlinked" data-type="x">
+                                <button class="link-margins link-icon link-icon__bottom" data-type="x" data-copy-to="left" data-copy-from="right" title="Link Left and Right margins using Right's value"></button>
+                                <label for="margin-right">Right:</label>
+                            </div>
+                            <div class="margins-unlinked" data-type="x">
+                                <input 
+                                    type="number"
+                                    id="margin-right"
+                                    class="unit-value"
+                                    step=0.05
+                                    min=0
+                                    value=0.25>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
+
+                            <div class="margin-label margins-linked" data-type="y">
+                                <input id="linked-y" class="visually-hidden link-icon__checkbox" aria-hidden="true" type="checkbox" data-type="y" checked>
+                                <label class="link-icon margins-linked" data-type="y" for="linked-y" aria-label="Break link between top and bottom margins" title="Break link between top and bottom margins">
+                                </label>
+                                <label for="margin-y">Top/Bottom:</label>
+                            </div>
+                            <div class="margins-linked" data-type="y">
                                 <input 
                                     type="number"
                                     id="margin-y"
+                                    class="unit-value"
+                                    step=0.05
+                                    min=0
+                                    value=0.5>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
+
+                            <div class="margin-label margins-unlinked" data-type="y">
+                                <button class="link-margins link-icon link-icon__top" data-type="y" data-copy-to="bottom" data-copy-from="top" title="Link Top and Bottom margins using Top's value">
+                                </button>
+                                <label for="margin-top">Top:</label>
+                            </div>
+                            <div class="margins-unlinked" data-type="y">
+                                <input 
+                                    type="number"
+                                    id="margin-top"
+                                    class="unit-value"
+                                    step=0.05
+                                    min=0
+                                    value=0.5>
+                                <span class="suffix mm">mm</span>
+                                <span class="suffix in">in</span>
+                            </div>
+
+                            <div class="margin-label margins-unlinked" data-type="y">
+                                <button class="link-margins link-icon link-icon__bottom" data-type="y" data-copy-to="top" data-copy-from="bottom" title="Link Top and Bottom margins using Bottom's value"></button>
+                                <label for="margin-bottom">Bottom:</label>
+                            </div>
+                            <div class="margins-unlinked" data-type="y">
+                                <input 
+                                    type="number"
+                                    id="margin-bottom"
                                     class="unit-value"
                                     step=0.05
                                     min=0
@@ -236,7 +316,10 @@
                                 </div>
                                 <div>
                                     <strong>Margins:</strong>
-                                    <p>Page margins (in inches) for sides and top/bottom</p>
+                                    <p>
+                                        Page margins (in inches) for sides and top/bottom. Each axis (left/right or top/bottom) can be unlinked by 
+                                        clicking the link icon to the left of the respective label to tweak them on an individual basis.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -390,7 +473,11 @@
                                         </li>
                                         <li>
                                             <strong>Column Gap:</strong>
-                                            <p>Page margins (in inches) for sides and top/bottom</p>
+                                            <p>Gap (in px) between grid columns</p>
+                                        </li>
+                                        <li>
+                                            <strong>Row Gap:</strong>
+                                            <p>Gap (in px) between grid rows</p>
                                         </li>
                                     </ul>
                                 </details>
