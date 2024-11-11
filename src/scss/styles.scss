@@ -476,6 +476,87 @@ input[type="number"] {
     padding-left: .5rem;
 }
 
+.config__page-layout__margins {
+    &[data-x-linked="true"] {
+        .margins-linked[data-type="x"] { display: inline-flex; }
+        .margins-unlinked[data-type="x"] { display: none; }
+    }
+    &[data-y-linked="true"] {
+        .margins-linked[data-type="y"] { display: inline-flex; }
+        .margins-unlinked[data-type="y"] { display: none; }
+    }
+
+    &[data-x-linked="false"] {
+        .margins-linked[data-type="x"] { display: none; }
+        .margins-unlinked[data-type="x"] { display: inline-flex; }
+    }
+    &[data-y-linked="false"] {
+        .margins-linked[data-type="y"] { display: none; }
+        .margins-unlinked[data-type="y"] { display: inline-flex; }
+    }
+}
+
+.margins-linked,
+.margins-unlinked {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: .25rem;
+}
+
+.link-icon__checkbox {
+    &:focus + .link-icon,
+    + .link-icon:hover {
+        border: 1px solid var(--text-color);
+    }
+
+    &:not(:checked) {
+        + .link-icon { 
+            display: none; 
+        }
+    }
+}
+
+.margin-label {
+    display: inline-flex;
+
+    > button {
+        border: none;
+        padding: 0;
+        background: none;
+    }
+}
+
+.link-icon {
+	width: 1.5rem;
+	height: 1.5rem;
+	padding: .25rem;
+
+    &:focus,
+    &:hover {
+        border: 1px solid var(--text-color);
+        cursor: pointer;
+    }
+
+    &__top > svg {
+        transform: rotate(-45deg) translateY(10%) translateX(-10%);
+    }
+
+    &__bottom > svg {
+        transform: rotate(-45deg) translateY(-10%) translateX(10%);
+    }
+
+    > svg{
+        fill: var(--text-color);
+        width: 100%;
+        height: 100%;
+    }
+}
+
+// half-link buttons to re-link axis' margins
+.link-margins {
+    height: 1.25rem;
+}
+
 fieldset {
     border: none;
 
@@ -683,9 +764,15 @@ $border-color: #333;
 $subcell-size: 5mm;
 
 #page {
+    --_top: 0;
+    --_right: 0;
+    --_bottom: 0;
+    --_left: 0;
+
     color: black !important;
     background-color: white !important;
     border: 1px solid black;
+    padding: var(--_top) var(--_right) var(--_bottom) var(--_left);
 }
 
 // Main Grid (Outer Grid)

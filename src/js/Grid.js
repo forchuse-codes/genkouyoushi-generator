@@ -33,9 +33,15 @@ export class Grid {
             },
             margins: {
                 elements: {
+                    top: document.getElementById('margin-top'),
+                    right: document.getElementById('margin-right'),
+                    bottom: document.getElementById('margin-bottom'),
+                    left: document.getElementById('margin-left'),
                     x: document.getElementById('margin-x'),
                     y: document.getElementById('margin-y')
-                }
+                },
+                get linkedX() { return document.getElementById('linked-x').checked; },
+                get linkedY() { return document.getElementById('linked-y').checked; }
             },
             presets: document.getElementById('presets'),
             get orientation() { return document.querySelector('input[name="orientation"]:checked').id; }
@@ -51,6 +57,39 @@ export class Grid {
                 y: { get() { return parseFloat(pageLayout[key].elements.y.value) } },
                 pxX: { get() { return self.units.toPx(pageLayout[key].x); } },
                 pxY: { get() { return self.units.toPx(pageLayout[key].y); } }
+            });
+        });
+
+        ['Top', 'Right', 'Bottom', 'Left'].forEach((dir) => {
+            Object.defineProperty(pageLayout.margins, 'px'+dir, {
+                get() { return self.units.toPx(pageLayout.margins.elements[dir.toLowerCase()].value); }
+            });
+        });
+
+        const marginFieldset = document.getElementById('margin-fieldset');
+
+        const linkedMarginsCheckboxes = document.querySelectorAll('.link-icon__checkbox');
+        linkedMarginsCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                // make sure the split margins' values match the linked one when splitting up
+                if (!checkbox.checked) {
+                    const targets = checkbox.dataset.type === 'x' ? ['left', 'right'] : ['top', 'bottom'];
+                    targets.forEach((target) => {
+                        pageLayout.margins.elements[target].value = pageLayout.margins[checkbox.dataset.type];
+                    });
+                }
+                marginFieldset.setAttribute('data-' + checkbox.dataset.type + '-linked', checkbox.checked);
+            })
+        });
+
+        const marginLinks = document.querySelectorAll('.link-margins');
+        marginLinks.forEach(link => {
+            const checkbox = document.getElementById("linked-" +link.dataset.type);
+            link.addEventListener('click', () => {
+                checkbox.click();
+                const valueToCopy = pageLayout.margins.elements[link.dataset.copyFrom].value;
+                pageLayout.margins.elements[link.dataset.copyTo].value = valueToCopy;
+                pageLayout.margins.elements[link.dataset.type].value = valueToCopy;
             });
         });
 
@@ -142,9 +181,9 @@ export class Grid {
         });
 
         Object.defineProperties(designOptions.vocab, {
-            gap: { get() { return parseInt(designOptions.vocab.elements.gap.value); } },
+            gap:   { get() { return parseInt(designOptions.vocab.elements.gap.value); } },
             words: { get() { return designOptions.vocab.elements.words.children; } },
-            ltr: { get() { return designOptions.vocab.direction === 'ltr'; } }
+            ltr:   { get() { return designOptions.vocab.direction === 'ltr'; } }
         });
 
         const styles = document.querySelectorAll('input[name="grid-style"]');
@@ -253,7 +292,8 @@ export class Grid {
         
         const borderWidth = 1;
         const colGap = this.wordCount() ? 0 : parseInt(this.gridDesign.sizes.colGap);
-        const gridWidthPx = Math.floor(this.pageLayout.dimensions.pxX - 2 * this.pageLayout.margins.pxX);
+        // const gridWidthPx = Math.floor(this.pageLayout.dimensions.pxX - 2 * this.pageLayout.margins.pxX);
+        const gridWidthPx = Math.floor(this.grid.offsetWidth);
         return Math.floor(gridWidthPx / (this.gridDesign.sizes.cellPx + borderWidth + colGap));
     }
 
@@ -263,7 +303,8 @@ export class Grid {
         }
         const borderWidth = 1;
         const rowGap = this.wordCount() ? 0 : parseInt(this.gridDesign.sizes.rowGap);
-        const gridHeightPx = Math.floor(this.pageLayout.dimensions.pxY - 2 * this.pageLayout.margins.pxY);
+        // const gridHeightPx = Math.floor(this.pageLayout.dimensions.pxY - 2 * this.pageLayout.margins.pxY);
+        const gridHeightPx = Math.floor(this.grid.offsetHeight);
         return Math.floor(gridHeightPx / (this.gridDesign.sizes.cellPx + borderWidth + rowGap));
     }
 
@@ -285,7 +326,26 @@ export class Grid {
         this.updatingLayout = true;
         this.page.style.width = this.pageLayout.dimensions.pxX + "px";
         this.page.style.height = this.pageLayout.dimensions.pxY + "px";
-        this.page.style.padding = `${this.pageLayout.margins.pxY}px ${this.pageLayout.margins.pxX}px`; 
+        let top, right, bottom, left;
+
+        if (this.pageLayout.margins.linkedX) {
+            left = right = this.pageLayout.margins.pxX;
+        }
+        else {
+            left = this.pageLayout.margins.pxLeft;
+            right = this.pageLayout.margins.pxRight;
+        }
+
+        if (this.pageLayout.margins.linkedY) {
+            top = bottom = this.pageLayout.margins.pxY;
+        }
+        else {
+            top    = this.pageLayout.margins.pxTop;
+            bottom = this.pageLayout.margins.pxBottom;
+        }
+
+        this.page.style.paddingInline = `${right}px ${left}px`; 
+        this.page.style.paddingBlock  = `${top}px ${bottom}px`; 
 
         this.updateOrientation();
 

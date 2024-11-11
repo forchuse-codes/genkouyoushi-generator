@@ -32,6 +32,25 @@ import {Grid} from './Grid.js'
         });
     });
 
+    // grab icon svgs
+    const link_icons_types = [
+        '',
+        '__top',
+        '__bottom'
+    ];
+    link_icons_types.forEach(type => {
+        const selector = '.link-icon' + (type.length ? type : '.margins-linked');
+        const icons = document.querySelectorAll(selector);
+        fetch(`src/svg/link-icon${type}.svg`)
+            .then(response => response.text())
+            .then(data => {
+                icons.forEach(icon => {
+                    icon.innerHTML = data;
+                })
+            })
+            .catch(error => console.error('Error loading SVG:', error));
+    });
+        
     const vocabSection = document.getElementById('vocab-section');
     const vocabList = document.getElementById("vocab-list");
     const addWord = document.getElementById("add-word");
