@@ -54,16 +54,9 @@ body {
     color: var(--text-color);
     background-color: var(--bg-color);
     padding-inline: var(--window-padding-inline);
+    margin-inline: auto;
 
-    display: grid;
-    grid-template-columns:
-        minmax(0, 1fr) 
-        min(140ch + 7rem, 100%)
-        minmax(0, 1fr) ;
-
-    > * {
-        grid-column: 2;
-    }
+    width: min(140ch + 7rem, 100%);
 }
 
 img {
@@ -704,7 +697,7 @@ fieldset {
     &-lines {
         &::before,
         &::after {
-        border-color: var(--sub_c);
+            border-color: var(--sub_c);
         }
         
         &::before {

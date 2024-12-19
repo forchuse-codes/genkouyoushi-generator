@@ -45,11 +45,8 @@ body {
   color: var(--text-color);
   background-color: var(--bg-color);
   padding-inline: var(--window-padding-inline);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) min(140ch + 7rem, 100%) minmax(0, 1fr);
-}
-body > * {
-  grid-column: 2;
+  margin-inline: auto;
+  width: min(140ch + 7rem, 100%);
 }
 
 img {
