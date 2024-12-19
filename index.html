@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="kU-4ka1mwxvST0UQE_6HQ62Y2FbrGhF6cyOyox5wkQQ" />
+    <meta name="description" content="A simple application for generating a custom Genkouyoushi PDF with customizable page size/layout, cell/grid styles, and an optional Vocab Mode.">
     <link rel="stylesheet" href="src/css/styles.css">
-    <link rel="preload" href="src/svg/link-icon.svg" as="image" type="image/svg+xml">
-    <link rel="preload" href="src/svg/link-icon__top.svg" as="image" type="image/svg+xml">
-    <link rel="preload" href="src/svg/link-icon__bottom.svg" as="image" type="image/svg+xml">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
     <script type="module" src="src/js/main.js" defer></script>
@@ -127,7 +125,7 @@
                                 <span class="suffix mm">mm</span>
                                 <span class="suffix in">in</span>
                             </div>
-                            <label for="page-presets">Presets:</label>
+                            <label for="presets">Presets:</label>
                             <select name="presets" id="presets">
                                 <option id="a4" value="A4" data-in-x="8.3" data-in-y="11.7" data-mm-x="210" data-mm-y="297">
                                     A4
@@ -177,7 +175,10 @@
                                     Custom
                                 </option>
                             </select>
-                            <label for="orientation">Orientation:</label>
+                        </fieldset>
+
+                        <fieldset class="config__page-layout__orientation config-section_sub">
+                            <legend>Orientation</legend>
                             <ul>
                                 <li>
                                     <input type="radio" name="orientation" id="portrait" checked>
@@ -185,7 +186,7 @@
                                 </li> 
                                 <li>
                                     <input type="radio" name="orientation" id="landscape">
-                                    <label for="Landscape">Landscape</label>
+                                    <label for="landscape">Landscape</label>
                                 </li> 
                             </ul>
                         </fieldset>
@@ -193,7 +194,7 @@
                         <fieldset id="margin-fieldset" class="config__page-layout__margins config-section_sub" data-x-linked="true" data-y-linked="true">
                             <legend class="section-header">Margins</legend>
                             <div class="margin-label margins-linked" data-type="x">
-                                <input id="linked-x" class="visually-hidden link-icon__checkbox" aria-hidden="true" type="checkbox" data-type="x" checked>
+                                <input id="linked-x" class="visually-hidden link-icon__checkbox" type="checkbox" data-type="x" checked>
                                 <label class="link-icon margins-linked" data-type="x" for="linked-x" aria-label="Break link between left and right margins" title="Break link between left and right margins">
                                 </label>
                                 <label for="margin-x">Left/Right:</label>
@@ -244,7 +245,7 @@
                             </div>
 
                             <div class="margin-label margins-linked" data-type="y">
-                                <input id="linked-y" class="visually-hidden link-icon__checkbox" aria-hidden="true" type="checkbox" data-type="y" checked>
+                                <input id="linked-y" class="visually-hidden link-icon__checkbox" type="checkbox" data-type="y" checked>
                                 <label class="link-icon margins-linked" data-type="y" for="linked-y" aria-label="Break link between top and bottom margins" title="Break link between top and bottom margins">
                                 </label>
                                 <label for="margin-y">Top/Bottom:</label>
@@ -415,14 +416,14 @@
                                 <li>
                                     <input id="none" type="radio" name="grid-style" value="blank">
                                     <div class="grid none">
-                                        <label for="none" title="No Squares">
+                                        <label for="none" title="No Squares" aria-label="No Squares">
                                         </label>
                                     </div>
                                 </li>
                                 <li>
-                                    <input id="quad"type="radio" name="grid-style" value="quad" checked>
+                                    <input id="quad" type="radio" name="grid-style" value="quad" checked>
                                     <div class="grid quad">
-                                        <label for="quad" title="Four Squares">
+                                        <label for="quad" title="Four Squares" aria-label="Four Squares">
                                         <div class="quad-lines"></div>
                                         </label>
                                     </div>
@@ -430,7 +431,7 @@
                                 <li>
                                     <input id="hexa" type="radio" name="grid-style" value="hexa">
                                     <div class="grid hexa">
-                                        <label for="hexa" title="Eight Squares">
+                                        <label for="hexa" title="Eight Squares" aria-label="Eight Squares">
                                         <div class="quad-lines"></div>
                                         <div class="hexa-lines"></div>
                                         </label>
@@ -470,7 +471,7 @@
                                     <ul>
                                         <li>
                                             <strong>Cell Size:</strong>
-                                            <p>The width/height of each square within the grid in mm (this is approximate and is rounded down when converted to pixels)</p>
+                                            <p>The width/height of each square within the grid in your selected unit (inches or millimeters) (this is approximate and is rounded down when converted to pixels)</p>
                                         </li>
                                         <li>
                                             <strong>Column Gap:</strong>
@@ -698,7 +699,7 @@
                                     </li>
                                     <li>
                                         <strong>Cell Size:</strong>
-                                        <p>Adds the cell size in mm to the filename</p>
+                                        <p>Adds the cell size in your selected unit (inches or millimeters) to the filename</p>
                                     </li>
                                     <li>
                                         <strong>Column Gap:</strong>
